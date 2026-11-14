@@ -121,7 +121,93 @@ class TinkercadAudio {
     osc.start();
     osc.stop(this.ctx.currentTime + 0.12);
   }
+
+  playStepComplete() {
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 celebratory arpeggio
+    notes.forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + i * 0.08);
+      gain.gain.setValueAtTime(0.2, now + i * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.18);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + i * 0.08);
+      osc.stop(now + i * 0.08 + 0.2);
+    });
+  }
 }
+
+const GUIDE_STEPS = [
+  {
+    step: 1,
+    title: "1. Connect Battery to Controller",
+    badge: "STEP 1 OF 5",
+    desc: "In solar PV installations, <strong>always wire the battery first</strong>! This allows the charge controller to power on and identify the system voltage (12V) before any solar panel voltage is applied.",
+    tip: "Use Red wire for Battery (+) to Controller Batt (+), and Black wire for Battery (-) to Controller Batt (-).",
+    wires: [
+      { from: 'batt_pos', to: 'cc_batt_pos', label: 'Battery (+) ➔ Controller BATT (+)', color: '#ef4444' },
+      { from: 'batt_neg', to: 'cc_batt_neg', label: 'Battery (-) ➔ Controller BATT (-)', color: '#1e293b' }
+    ]
+  },
+  {
+    step: 2,
+    title: "2. Connect Solar Panel to Controller",
+    badge: "STEP 2 OF 5",
+    desc: "Now connect the <strong>Solar Panel (PV)</strong> to the charge controller input terminals. Photons from sunlight produce DC voltage which flows through the controller to charge the battery.",
+    tip: "Connect PV (+) to Controller PV (+), and PV (-) to Controller PV (-).",
+    wires: [
+      { from: 'solar_pos', to: 'cc_pv_pos', label: 'Solar Panel (+) ➔ Controller PV (+)', color: '#ef4444' },
+      { from: 'solar_neg', to: 'cc_pv_neg', label: 'Solar Panel (-) ➔ Controller PV (-)', color: '#1e293b' }
+    ]
+  },
+  {
+    step: 3,
+    title: "3. Connect 12V DC Bulb to Controller",
+    badge: "STEP 3 OF 5",
+    desc: "Connect the <strong>12V DC Bulb</strong> to the controller's DC Load terminals. The charge controller provides low-voltage disconnect protection to safeguard battery life.",
+    tip: "Wire Controller LOAD (+) to Bulb (+), and Controller LOAD (-) to Bulb (-).",
+    wires: [
+      { from: 'cc_load_pos', to: 'dcload_pos', label: 'Controller LOAD (+) ➔ 12V Bulb (+)', color: '#ef4444' },
+      { from: 'cc_load_neg', to: 'dcload_neg', label: 'Controller LOAD (-) ➔ 12V Bulb (-)', color: '#1e293b' }
+    ]
+  },
+  {
+    step: 4,
+    title: "4. Connect Battery to Power Inverter",
+    badge: "STEP 4 OF 5",
+    desc: "Connect the <strong>Inverter DC Input</strong> directly to the Battery. Inverters pull high surge currents and convert 12V Direct Current into 230V Alternating Current.",
+    tip: "Double check polarity! Reversing DC connections will trip the short-circuit safeguard.",
+    wires: [
+      { from: 'batt_pos', to: 'inv_dc_pos', label: 'Battery (+) ➔ Inverter DC (+)', color: '#ef4444' },
+      { from: 'batt_neg', to: 'inv_dc_neg', label: 'Battery (-) ➔ Inverter DC (-)', color: '#1e293b' }
+    ]
+  },
+  {
+    step: 5,
+    title: "5. Connect Inverter to 230V AC Fan",
+    badge: "STEP 5 OF 5",
+    desc: "Connect the <strong>230V AC Fan</strong> to the inverter's AC Output terminals. The inverter delivers 230V AC electricity to run household appliances!",
+    tip: "Use Orange wire for AC Live (L) and Blue wire for AC Neutral (N).",
+    wires: [
+      { from: 'inv_ac_live', to: 'acload_live', label: 'Inverter AC Live (L) ➔ AC Fan (L)', color: '#f59e0b' },
+      { from: 'inv_ac_neu', to: 'acload_neu', label: 'Inverter AC Neutral (N) ➔ AC Fan (N)', color: '#0284c7' }
+    ]
+  },
+  {
+    step: 6,
+    title: "🎉 Solar PV Circuit Complete!",
+    badge: "READY TO SIMULATE",
+    desc: "All 5 core components are properly attached! Now click <strong>'Start Simulation' (▶)</strong> at the top right to start power flow and test the sunlight and battery sliders.",
+    tip: "You can turn this guide OFF at any time using the 'Guide' button in the toolbar.",
+    wires: [],
+    isFinished: true
+  }
+];
 
 const TK_SOUND = new TinkercadAudio();
 
@@ -190,6 +276,29 @@ class TinkercadCircuits {
     this.ccLcdMode = document.getElementById('cc-lcd-mode');
     this.ccLed = document.getElementById('cc-led');
 
+    // Step-by-Step Component Wiring Guide State & Elements
+    this.isGuideActive = false;
+    this.currentGuideStepIndex = 0;
+    this.isGuideMinimized = false;
+    this.guideDragData = { isDragging: false, startX: 0, startY: 0, startLeft: 0, startTop: 0 };
+
+    this.btnGuideToggle = document.getElementById('btn-guide-toggle');
+    this.guideBadgeStatus = document.getElementById('guide-badge-status');
+    this.guidePanel = document.getElementById('guide-panel');
+    this.guideHeader = document.getElementById('guide-header');
+    this.guideStepTag = document.getElementById('guide-step-tag');
+    this.guideProgressBar = document.getElementById('guide-progress-bar');
+    this.guideStepTitle = document.getElementById('guide-step-title');
+    this.guideStepDesc = document.getElementById('guide-step-desc');
+    this.guideTasks = document.getElementById('guide-tasks');
+    this.guideTipText = document.getElementById('guide-tip-text');
+    this.btnGuideMin = document.getElementById('btn-guide-min');
+    this.btnGuideClose = document.getElementById('btn-guide-close');
+    this.btnGuidePrev = document.getElementById('btn-guide-prev');
+    this.btnGuideNext = document.getElementById('btn-guide-next');
+    this.btnGuideAutowire = document.getElementById('btn-guide-autowire');
+    this.guideHintsGroup = document.getElementById('guide-hints-group');
+
     this.init();
   }
 
@@ -197,11 +306,14 @@ class TinkercadCircuits {
     this.bindEvents();
     this.setupTerminals();
     this.setupComponentDragging();
+    this.setupGuideControls();
+    this.setupGuideDragging();
     this.updateBatteryUI();
     this.startAnimationLoop();
 
     window.addEventListener('resize', () => {
       this.renderWires();
+      if (this.isGuideActive) this.updateGuideTargetHighlights();
     });
   }
 
@@ -234,6 +346,7 @@ class TinkercadCircuits {
       this.renderWires();
       this.updateTerminalVisuals();
       this.evaluateCircuit();
+      if (this.isGuideActive) this.renderGuideStep();
     });
 
     // Demo Auto-wire button
@@ -450,6 +563,7 @@ class TinkercadCircuits {
 
     this.statusMsg.textContent = `Connected ${fromTerm.title} to ${toTerm.title}.`;
     this.evaluateCircuit();
+    if (this.isGuideActive) this.checkGuideStepProgress();
   }
 
   deleteSelectedWire() {
@@ -461,6 +575,7 @@ class TinkercadCircuits {
     this.updateTerminalVisuals();
     this.statusMsg.textContent = 'Wire deleted.';
     this.evaluateCircuit();
+    if (this.isGuideActive) this.renderGuideStep();
   }
 
   updateTerminalVisuals() {
@@ -543,6 +658,7 @@ class TinkercadCircuits {
 
       this.renderWires();
       if (this.activeStartTerminal) this.updateDraftWire();
+      if (this.isGuideActive) this.updateGuideTargetHighlights();
     });
 
     window.addEventListener('mouseup', () => {
@@ -590,6 +706,10 @@ class TinkercadCircuits {
     this.statusMsg.textContent = 'Auto-connected clean reference circuit! Click "Start Simulation" to run.';
 
     this.evaluateCircuit();
+    if (this.isGuideActive) {
+      this.currentGuideStepIndex = GUIDE_STEPS.length - 1;
+      this.renderGuideStep();
+    }
   }
 
   /* ================= DEMO SHORT CIRCUIT / WRONG WIRE TEST ================= */
@@ -1139,6 +1259,309 @@ class TinkercadCircuits {
         this.smokeEffects.appendChild(smoke);
       });
     });
+  }
+
+  /* ================= STEP-BY-STEP COMPONENT ATTACHING GUIDE ENGINE ================= */
+  setupGuideControls() {
+    if (!this.btnGuideToggle) return;
+
+    // Toggle button in header toolbar
+    this.btnGuideToggle.addEventListener('click', () => {
+      this.toggleGuide();
+    });
+
+    // Close / Turn Off button in guide panel
+    if (this.btnGuideClose) {
+      this.btnGuideClose.addEventListener('click', () => {
+        this.toggleGuide(false);
+      });
+    }
+
+    // Minimize / Expand button in guide panel
+    if (this.btnGuideMin) {
+      this.btnGuideMin.addEventListener('click', () => {
+        this.isGuideMinimized = !this.isGuideMinimized;
+        this.guidePanel.classList.toggle('minimized', this.isGuideMinimized);
+        this.btnGuideMin.textContent = this.isGuideMinimized ? '+' : '−';
+        this.btnGuideMin.title = this.isGuideMinimized ? 'Expand Guide' : 'Minimize Guide';
+      });
+    }
+
+    // Previous step button
+    if (this.btnGuidePrev) {
+      this.btnGuidePrev.addEventListener('click', () => {
+        if (this.currentGuideStepIndex > 0) {
+          this.currentGuideStepIndex--;
+          this.renderGuideStep();
+        }
+      });
+    }
+
+    // Next step button
+    if (this.btnGuideNext) {
+      this.btnGuideNext.addEventListener('click', () => {
+        if (this.currentGuideStepIndex < GUIDE_STEPS.length - 1) {
+          this.currentGuideStepIndex++;
+          this.renderGuideStep();
+        }
+      });
+    }
+
+    // Auto-Wire current step button
+    if (this.btnGuideAutowire) {
+      this.btnGuideAutowire.addEventListener('click', () => {
+        this.autoWireCurrentGuideStep();
+      });
+    }
+  }
+
+  setupGuideDragging() {
+    if (!this.guideHeader || !this.guidePanel) return;
+
+    this.guideHeader.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button')) return;
+      this.guideDragData.isDragging = true;
+      this.guideDragData.startX = e.clientX;
+      this.guideDragData.startY = e.clientY;
+
+      const rect = this.guidePanel.getBoundingClientRect();
+      const wpRect = this.workplane.getBoundingClientRect();
+      this.guideDragData.startLeft = rect.left - wpRect.left;
+      this.guideDragData.startTop = rect.top - wpRect.top;
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.guideDragData.isDragging) return;
+      const dx = e.clientX - this.guideDragData.startX;
+      const dy = e.clientY - this.guideDragData.startY;
+      const wpRect = this.workplane.getBoundingClientRect();
+
+      let newLeft = this.guideDragData.startLeft + dx;
+      let newTop = this.guideDragData.startTop + dy;
+
+      newLeft = Math.max(10, Math.min(wpRect.width - 320, newLeft));
+      newTop = Math.max(10, Math.min(wpRect.height - 80, newTop));
+
+      this.guidePanel.style.left = `${newLeft}px`;
+      this.guidePanel.style.top = `${newTop}px`;
+      this.guidePanel.style.right = 'auto';
+    });
+
+    window.addEventListener('mouseup', () => {
+      this.guideDragData.isDragging = false;
+    });
+  }
+
+  toggleGuide(forceState = null) {
+    this.isGuideActive = (forceState !== null) ? forceState : !this.isGuideActive;
+
+    if (this.isGuideActive) {
+      // Find first incomplete step, or start from current step
+      const incompleteIdx = GUIDE_STEPS.findIndex(step => {
+        if (!step.wires || step.wires.length === 0) return false;
+        return !step.wires.every(w => this.isWired(w.from, w.to));
+      });
+      if (incompleteIdx !== -1) {
+        this.currentGuideStepIndex = incompleteIdx;
+      }
+
+      this.guidePanel.style.display = 'block';
+      this.btnGuideToggle.classList.add('active');
+      this.guideBadgeStatus.className = 'guide-status-badge on';
+      this.guideBadgeStatus.textContent = 'ON';
+
+      this.renderGuideStep();
+      this.statusMsg.textContent = `📖 Guide ON: Follow Step ${this.currentGuideStepIndex + 1} to attach the components.`;
+    } else {
+      this.guidePanel.style.display = 'none';
+      this.btnGuideToggle.classList.remove('active');
+      this.guideBadgeStatus.className = 'guide-status-badge off';
+      this.guideBadgeStatus.textContent = 'OFF';
+
+      this.clearGuideTargetHighlights();
+      this.statusMsg.textContent = 'Step-by-Step Guide turned OFF. Free sandbox wiring mode active.';
+    }
+  }
+
+  clearGuideTargetHighlights() {
+    document.querySelectorAll('.tk-terminal').forEach(t => {
+      t.classList.remove('guide-target', 'guide-target-pos', 'guide-target-neg');
+    });
+    if (this.guideHintsGroup) {
+      this.guideHintsGroup.innerHTML = '';
+    }
+  }
+
+  renderGuideStep() {
+    if (!this.isGuideActive) return;
+
+    const step = GUIDE_STEPS[this.currentGuideStepIndex];
+    if (!step) return;
+
+    // Header & Tag
+    this.guideStepTag.textContent = step.badge;
+    this.guideStepTitle.textContent = step.title;
+    this.guideStepDesc.innerHTML = step.desc;
+    this.guideTipText.textContent = step.tip;
+
+    // Progress bar
+    const progressPct = ((this.currentGuideStepIndex + 1) / GUIDE_STEPS.length) * 100;
+    this.guideProgressBar.style.width = `${progressPct}%`;
+
+    // Navigation buttons
+    this.btnGuidePrev.disabled = (this.currentGuideStepIndex === 0);
+    this.btnGuideNext.disabled = (this.currentGuideStepIndex === GUIDE_STEPS.length - 1);
+
+    // Tasks checklist
+    this.guideTasks.innerHTML = '';
+    let allWiresConnected = true;
+
+    if (step.wires && step.wires.length > 0) {
+      this.btnGuideAutowire.style.display = 'inline-flex';
+
+      step.wires.forEach(w => {
+        const isDone = this.isWired(w.from, w.to);
+        if (!isDone) allWiresConnected = false;
+
+        const taskItem = document.createElement('div');
+        taskItem.className = `guide-task-item ${isDone ? 'done' : ''}`;
+
+        const checkSpan = document.createElement('span');
+        checkSpan.className = 'guide-task-check';
+        checkSpan.textContent = isDone ? '✔' : '○';
+
+        const colorDot = document.createElement('span');
+        colorDot.className = 'guide-task-wire-color';
+        colorDot.style.background = w.color;
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'guide-task-text';
+        textSpan.textContent = w.label;
+
+        taskItem.appendChild(checkSpan);
+        taskItem.appendChild(colorDot);
+        taskItem.appendChild(textSpan);
+        this.guideTasks.appendChild(taskItem);
+      });
+    } else {
+      // Final finished step
+      this.btnGuideAutowire.style.display = 'none';
+      const finishBanner = document.createElement('div');
+      finishBanner.className = 'guide-step-complete-banner';
+      finishBanner.innerHTML = '🎉 System fully connected! Click <strong>"Start Simulation"</strong> ▶ to test.';
+      this.guideTasks.appendChild(finishBanner);
+    }
+
+    // If all wires for this step are already done and not on the last step, show ready next indicator
+    if (allWiresConnected && !step.isFinished && step.wires && step.wires.length > 0) {
+      const banner = document.createElement('div');
+      banner.className = 'guide-step-complete-banner';
+      banner.textContent = '✔ Step connections complete! Click "Next ▶" or continue wiring.';
+      this.guideTasks.appendChild(banner);
+    }
+
+    this.updateGuideTargetHighlights();
+  }
+
+  updateGuideTargetHighlights() {
+    if (!this.isGuideActive) return;
+
+    this.clearGuideTargetHighlights();
+
+    const step = GUIDE_STEPS[this.currentGuideStepIndex];
+    if (!step || !step.wires || step.wires.length === 0) return;
+
+    step.wires.forEach(w => {
+      const isDone = this.isWired(w.from, w.to);
+      if (isDone) return; // Only highlight pending connections
+
+      const t1 = document.querySelector(`.tk-terminal[data-id="${w.from}"]`);
+      const t2 = document.querySelector(`.tk-terminal[data-id="${w.to}"]`);
+
+      if (t1) {
+        t1.classList.add('guide-target');
+        if (t1.dataset.pol === '+') t1.classList.add('guide-target-pos');
+        if (t1.dataset.pol === '-') t1.classList.add('guide-target-neg');
+      }
+      if (t2) {
+        t2.classList.add('guide-target');
+        if (t2.dataset.pol === '+') t2.classList.add('guide-target-pos');
+        if (t2.dataset.pol === '-') t2.classList.add('guide-target-neg');
+      }
+
+      // Draw SVG dashed guide hint curve
+      if (t1 && t2 && this.guideHintsGroup) {
+        const p1 = this.getTerminalCenter(t1);
+        const p2 = this.getTerminalCenter(t2);
+
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const sag = Math.min(Math.hypot(dx, dy) * 0.18, 45);
+
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2 + sag;
+
+        const hintPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        hintPath.setAttribute('d', `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`);
+        hintPath.setAttribute('class', 'guide-hint-wire');
+        hintPath.setAttribute('stroke', w.color);
+        this.guideHintsGroup.appendChild(hintPath);
+      }
+    });
+  }
+
+  checkGuideStepProgress() {
+    if (!this.isGuideActive) return;
+
+    const step = GUIDE_STEPS[this.currentGuideStepIndex];
+    if (!step || !step.wires || step.wires.length === 0) return;
+
+    const allDone = step.wires.every(w => this.isWired(w.from, w.to));
+
+    if (allDone) {
+      TK_SOUND.playStepComplete();
+      this.renderGuideStep();
+
+      // Auto-advance to next step after brief celebration delay
+      if (this.currentGuideStepIndex < GUIDE_STEPS.length - 1) {
+        setTimeout(() => {
+          if (this.isGuideActive) {
+            this.currentGuideStepIndex++;
+            this.renderGuideStep();
+          }
+        }, 900);
+      }
+    } else {
+      this.renderGuideStep();
+    }
+  }
+
+  autoWireCurrentGuideStep() {
+    const step = GUIDE_STEPS[this.currentGuideStepIndex];
+    if (!step || !step.wires || step.wires.length === 0) return;
+
+    let addedAny = false;
+    step.wires.forEach(w => {
+      const exists = this.isWired(w.from, w.to);
+      if (!exists) {
+        this.wires.push({
+          id: `w_guide_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+          from: w.from,
+          to: w.to,
+          color: w.color
+        });
+        addedAny = true;
+      }
+    });
+
+    if (addedAny) {
+      TK_SOUND.playWireSnap();
+      this.renderWires();
+      this.updateTerminalVisuals();
+      this.evaluateCircuit();
+      this.checkGuideStepProgress();
+    }
   }
 }
 

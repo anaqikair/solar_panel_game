@@ -49,6 +49,15 @@
         <button id="btn-demo" class="tk-btn demo-btn" title="Auto-connect complete solar circuit">⚡ Demo Wire</button>
         <button id="btn-fault" class="tk-btn fault-btn" title="Simulate a wrong wire connection (Short Circuit / Reverse Polarity)">💥 Test Wrong Wire</button>
         <button id="btn-clear" class="tk-btn text-btn" title="Clear all wires">Reset Wires</button>
+
+        <div class="tk-divider"></div>
+
+        <!-- Step-by-Step Component Wiring Guide Toggle -->
+        <button id="btn-guide-toggle" class="tk-btn guide-toggle-btn" title="Toggle Step-by-Step Wiring Guide (On/Off)">
+          <span class="guide-btn-icon">📖</span>
+          <span class="guide-btn-title">Guide</span>
+          <span id="guide-badge-status" class="guide-status-badge off">OFF</span>
+        </button>
       </div>
     </div>
 
@@ -89,6 +98,7 @@
           </feMerge>
         </filter>
       </defs>
+      <g id="guide-hints-group"></g>
       <g id="wires-group"></g>
       <g id="smoke-effects"></g>
       <g id="electron-dots"></g>
@@ -280,6 +290,48 @@
         <div class="tk-terminal" data-id="acload_neu" data-type="AC" data-pol="N" title="AC Fan Neutral (N)">
           <div class="terminal-screw screw-ac-neu"></div>
           <span class="terminal-text">N</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step-by-Step Interactive Component Wiring Guide Panel -->
+    <div id="guide-panel" class="guide-floating-panel" style="display: none;">
+      <div class="guide-header" id="guide-header" title="Drag to move guide anywhere">
+        <div class="guide-header-title">
+          <span class="guide-icon">📖</span>
+          <span class="guide-step-tag" id="guide-step-tag">STEP 1 OF 5</span>
+          <span class="guide-drag-handle">⠿</span>
+        </div>
+        <div class="guide-header-actions">
+          <button id="btn-guide-min" class="guide-hdr-btn" title="Minimize / Expand Guide">−</button>
+          <button id="btn-guide-close" class="guide-hdr-btn close-btn" title="Turn Off Step-by-Step Guide">✕ Turn Off</button>
+        </div>
+      </div>
+
+      <div class="guide-body" id="guide-body">
+        <div class="guide-progress-bar-container">
+          <div class="guide-progress-bar" id="guide-progress-bar" style="width: 20%;"></div>
+        </div>
+
+        <h3 class="guide-step-title" id="guide-step-title">Connect Battery to Controller</h3>
+        <p class="guide-step-desc" id="guide-step-desc">
+          In solar PV installations, <strong>always wire the battery first</strong>! This powers up the controller so it can auto-detect the system voltage before PV power is applied.
+        </p>
+
+        <!-- Dynamic Connections Checklist for Current Step -->
+        <div class="guide-tasks" id="guide-tasks"></div>
+
+        <div class="guide-step-tip" id="guide-step-tip">
+          <span class="tip-icon">💡</span>
+          <span class="tip-text" id="guide-tip-text">Follow the glowing terminals on the board.</span>
+        </div>
+
+        <div class="guide-footer">
+          <div class="guide-nav-btns">
+            <button id="btn-guide-prev" class="guide-btn-nav" title="Previous step">◀ Prev</button>
+            <button id="btn-guide-next" class="guide-btn-nav" title="Next step">Next ▶</button>
+          </div>
+          <button id="btn-guide-autowire" class="guide-btn-autowire" title="Auto-connect this step's wires">⚡ Auto-Wire Step</button>
         </div>
       </div>
     </div>

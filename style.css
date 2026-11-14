@@ -997,3 +997,448 @@ body {
   color: #475569;
   flex-shrink: 0;
 }
+
+/* ================= STEP-BY-STEP COMPONENT ATTACHING GUIDE ================= */
+
+/* Toolbar Guide Toggle Button */
+.tk-btn.guide-toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #475569;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tk-btn.guide-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: #64748b;
+}
+
+.tk-btn.guide-toggle-btn.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.guide-status-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+
+.guide-status-badge.off {
+  background: #475569;
+  color: #94a3b8;
+}
+
+.guide-status-badge.on {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+/* Floating Guide Overlay Card */
+.guide-floating-panel {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 350px;
+  max-width: calc(100vw - 36px);
+  background: rgba(18, 24, 32, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 3px 8px rgba(0, 0, 0, 0.35);
+  z-index: 85;
+  color: #f1f5f9;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  animation: guide-panel-appear 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes guide-panel-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.guide-floating-panel.minimized .guide-body {
+  display: none;
+}
+
+.guide-floating-panel.minimized {
+  width: auto;
+  min-width: 260px;
+}
+
+/* Guide Header */
+.guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: rgba(10, 15, 24, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 9px 9px 0 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.guide-header:active {
+  cursor: grabbing;
+}
+
+.guide-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guide-icon {
+  font-size: 1rem;
+}
+
+.guide-step-tag {
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+
+.guide-drag-handle {
+  color: #475569;
+  font-size: 0.9rem;
+  letter-spacing: -2px;
+  cursor: grab;
+}
+
+.guide-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.guide-hdr-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.guide-hdr-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.guide-hdr-btn.close-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.guide-hdr-btn.close-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Guide Body */
+.guide-body {
+  padding: 12px 14px 14px 14px;
+}
+
+.guide-progress-bar-container {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 11px;
+}
+
+.guide-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7, #10b981);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.guide-step-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.guide-step-desc {
+  font-size: 0.81rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.guide-step-desc strong {
+  color: #f8fafc;
+}
+
+/* Dynamic Tasks List */
+.guide-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 11px;
+}
+
+.guide-task-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  font-size: 0.79rem;
+  transition: all 0.2s ease;
+}
+
+.guide-task-item.done {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #a7f3d0;
+}
+
+.guide-task-check {
+  font-size: 0.9rem;
+  font-weight: 800;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.guide-task-item.done .guide-task-check {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.guide-task-wire-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.guide-task-text {
+  flex-grow: 1;
+  color: #e2e8f0;
+}
+
+.guide-task-item.done .guide-task-text {
+  color: #cbd5e1;
+  text-decoration: line-through;
+  opacity: 0.85;
+}
+
+/* Tip Box */
+.guide-step-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 7px 9px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 0.76rem;
+  color: #fde68a;
+  line-height: 1.35;
+}
+
+.tip-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Footer / Navigation */
+.guide-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.guide-nav-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.guide-btn-nav {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+  padding: 5px 11px;
+  border-radius: 4px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.guide-btn-nav:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.guide-btn-nav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.guide-btn-autowire {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  border: none;
+  color: #ffffff;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.guide-btn-autowire:hover {
+  background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+  transform: translateY(-1px);
+}
+
+/* Completed Step Celebration Banner */
+.guide-step-complete-banner {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 10px;
+  animation: banner-pop 0.3s ease;
+}
+
+@keyframes banner-pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ================= TARGET TERMINAL HIGHLIGHTS WHEN GUIDE IS ON ================= */
+.tk-terminal.guide-target {
+  z-index: 25 !important;
+  animation: guide-terminal-pulse 1.3s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
+}
+
+@keyframes guide-terminal-pulse {
+  0% {
+    box-shadow: 0 0 0 2px #38bdf8, 0 0 8px rgba(56, 189, 248, 0.6);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.85), 0 0 18px rgba(56, 189, 248, 0.95);
+    transform: scale(1.15);
+  }
+  100% {
+    box-shadow: 0 0 0 2px #38bdf8, 0 0 8px rgba(56, 189, 248, 0.6);
+    transform: scale(1);
+  }
+}
+
+.tk-terminal.guide-target-pos {
+  animation: guide-terminal-pulse-pos 1.3s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
+}
+
+@keyframes guide-terminal-pulse-pos {
+  0% {
+    box-shadow: 0 0 0 2px #ef4444, 0 0 8px rgba(239, 68, 68, 0.6);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.85), 0 0 18px rgba(239, 68, 68, 0.95);
+    transform: scale(1.15);
+  }
+  100% {
+    box-shadow: 0 0 0 2px #ef4444, 0 0 8px rgba(239, 68, 68, 0.6);
+    transform: scale(1);
+  }
+}
+
+.tk-terminal.guide-target-neg {
+  animation: guide-terminal-pulse-neg 1.3s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
+}
+
+@keyframes guide-terminal-pulse-neg {
+  0% {
+    box-shadow: 0 0 0 2px #64748b, 0 0 8px rgba(100, 116, 139, 0.6);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(148, 163, 184, 0.85), 0 0 18px rgba(148, 163, 184, 0.95);
+    transform: scale(1.15);
+  }
+  100% {
+    box-shadow: 0 0 0 2px #64748b, 0 0 8px rgba(100, 116, 139, 0.6);
+    transform: scale(1);
+  }
+}
+
+/* SVG Animated Dashed Hint Wire */
+.guide-hint-wire {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-dasharray: 8 6;
+  animation: guide-dash-flow 1.1s linear infinite;
+  opacity: 0.88;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+}
+
+@keyframes guide-dash-flow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
