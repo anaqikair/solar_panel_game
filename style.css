@@ -1,0 +1,999 @@
+/* Tinkercad Circuits Style */
+:root {
+  --tk-header-bg: #2e353d;
+  --tk-header-border: #1f2429;
+  --tk-workplane-bg: #e6ebed;
+  --tk-dot-grid: #c7d1d6;
+  --tk-green: #00aa4f;
+  --tk-green-hover: #009344;
+  --tk-red: #ea2027;
+  --wire-default: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--tk-workplane-bg);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ================= TINKERCAD HEADER ================= */
+.tk-header {
+  height: 52px;
+  background: var(--tk-header-bg);
+  border-bottom: 1px solid var(--tk-header-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  color: #ffffff;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.tk-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.tk-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.tk-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.tk-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tk-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.tk-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.tk-btn.active {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.tk-btn.text-btn {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 5px 10px;
+  border: 1px solid #475569;
+}
+
+.tk-btn.demo-btn {
+  background: rgba(14, 165, 233, 0.2);
+  border: 1px solid #0284c7;
+  color: #38bdf8;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tk-btn.demo-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.tk-btn.fault-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tk-btn.fault-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.tk-divider {
+  width: 1px;
+  height: 22px;
+  background: #475569;
+}
+
+/* Wire Color Picker (Exact Tinkercad layout) */
+.tk-color-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #1e242b;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #475569;
+}
+
+.tk-color-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: var(--wire-default);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.tk-color-picker select {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.tk-color-picker select option {
+  background: #2e353d;
+  color: #ffffff;
+}
+
+/* Header Right: Simulation & Sun & Battery */
+.tk-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.tk-batt-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.tk-batt-slider input[type="range"] {
+  width: 70px;
+  accent-color: #22c55e;
+  cursor: pointer;
+}
+
+.tk-sun-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.tk-sun-slider input[type="range"] {
+  width: 70px;
+  accent-color: #f59e0b;
+  cursor: pointer;
+}
+
+.tk-sim-btn {
+  background: var(--tk-green);
+  border: none;
+  color: #ffffff;
+  padding: 7px 16px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tk-sim-btn:hover {
+  background: var(--tk-green-hover);
+}
+
+.tk-sim-btn.running {
+  background: var(--tk-red);
+}
+
+.tk-sim-btn .sim-icon {
+  font-size: 0.75rem;
+}
+
+/* ================= WORKPLANE ================= */
+.tk-workplane {
+  flex: 1;
+  position: relative;
+  background-color: var(--tk-workplane-bg);
+  background-image: radial-gradient(var(--tk-dot-grid) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  overflow: hidden;
+}
+
+/* SVG Wires Layer: Must NOT block mouse interaction on terminals! */
+.tk-wire-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none; /* Key fix: Root SVG lets all clicks pass straight to terminals! */
+}
+
+.tk-wire {
+  stroke-width: 5px;
+  stroke-linecap: round;
+  fill: none;
+  filter: url(#shadow);
+  pointer-events: stroke; /* Only the wire strokes themselves capture clicks */
+  cursor: pointer;
+  transition: stroke-width 0.12s ease;
+}
+
+.tk-wire:hover {
+  stroke-width: 8px !important;
+}
+
+.tk-wire.selected {
+  stroke-width: 7px !important;
+  filter: drop-shadow(0 0 6px #0284c7) drop-shadow(0 0 10px #38bdf8);
+}
+
+.tk-wire.short-circuit-wire {
+  stroke: #ff1e00 !important;
+  stroke-dasharray: 8, 4;
+  animation: wire-burn 0.25s linear infinite;
+  filter: drop-shadow(0 0 6px #ff1e00) drop-shadow(0 0 14px #ff7700) !important;
+}
+
+@keyframes wire-burn {
+  0% { stroke-dashoffset: 0; filter: drop-shadow(0 0 4px #ff1e00); }
+  50% { stroke-dashoffset: 12; filter: drop-shadow(0 0 16px #ffea00); }
+  100% { stroke-dashoffset: 24; filter: drop-shadow(0 0 4px #ff1e00); }
+}
+
+.draft-wire {
+  stroke-width: 4px;
+  stroke-dasharray: 6, 6;
+  stroke-linecap: round;
+  fill: none;
+  pointer-events: none !important;
+}
+
+.electron-particle {
+  pointer-events: none;
+}
+
+/* ================= TINKERCAD COMPONENTS ================= */
+.tk-component {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  cursor: grab;
+  z-index: 15; /* Sits below active terminals */
+}
+
+.tk-component:active {
+  cursor: grabbing;
+}
+
+.cmp-body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 1. Solar Panel */
+.solar-body {
+  width: 200px;
+  height: 140px;
+  background: #0f1e36;
+  border: 5px solid #94a3b8;
+  border-radius: 4px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.solar-grid-pattern {
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(#3b82f6 1px, transparent 1px),
+    linear-gradient(90deg, #3b82f6 1px, transparent 1px);
+  background-size: 25px 25px;
+  opacity: 0.75;
+}
+
+.solar-badge {
+  position: absolute;
+  bottom: 6px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #f8fafc;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* 2. Solar Charge Controller */
+.cc-body {
+  width: 230px;
+  height: 140px;
+  background: #0284c7;
+  border: 4px solid #0369a1;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+}
+
+.cc-lcd {
+  width: 155px;
+  height: 52px;
+  background: #082f49;
+  border: 2px solid #0f172a;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3px 8px;
+  gap: 2px;
+}
+
+.lcd-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lcd-sub {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lcd-text {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+.lcd-pct {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #4ade80;
+}
+
+.lcd-mode {
+  font-family: 'Courier New', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.lcd-led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #334155;
+  border: 1px solid #0f172a;
+}
+
+.lcd-led.on {
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.lcd-led.blink-red {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: led-blink 0.4s infinite alternate;
+}
+
+@keyframes led-blink {
+  from { opacity: 0.2; }
+  to { opacity: 1; }
+}
+
+.cc-icons {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* 3. 12V DC Bulb */
+.bulb-body {
+  width: 160px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bulb-glass {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.bulb-filament {
+  width: 18px;
+  height: 18px;
+  border-top: 3px solid #94a3b8;
+  border-radius: 50%;
+}
+
+.bulb-base {
+  width: 30px;
+  height: 16px;
+  background: #d97706;
+  border-radius: 2px;
+  margin-top: -2px;
+}
+
+.bulb-glass.lit {
+  background: radial-gradient(circle, #fef08a 0%, #facc15 80%);
+  border-color: #eab308;
+  box-shadow: 0 0 35px #facc15;
+}
+
+.bulb-glass.lit .bulb-filament {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px #ffffff;
+}
+
+/* 4. Battery */
+.batt-body {
+  width: 215px;
+  height: 145px;
+  background: #1e293b;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  border: 3px solid #0f172a;
+  overflow: hidden;
+}
+
+.batt-top-bar {
+  height: 24px;
+  background: #334155;
+  border-bottom: 2px solid #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+}
+
+.batt-post-post {
+  width: 16px;
+  height: 12px;
+  border-radius: 2px;
+}
+.pos-post { background: #ef4444; }
+.neg-post { background: #0f172a; border: 1px solid #475569; }
+
+.batt-handle {
+  width: 50px;
+  height: 6px;
+  background: #64748b;
+  border-radius: 2px;
+}
+
+.batt-front {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  color: #ffffff;
+}
+
+.batt-brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.batt-brand-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: 0.5px;
+}
+
+.batt-brand-sub {
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+/* Battery Gauge */
+.batt-gauge {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 1px 0;
+}
+
+.batt-meter-frame {
+  width: 100%;
+  height: 13px;
+  background: #0f172a;
+  border-radius: 3px;
+  border: 1px solid #334155;
+  padding: 1.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.batt-meter-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.batt-meter-bar.med {
+  background: linear-gradient(90deg, #eab308, #facc15);
+}
+
+.batt-meter-bar.low {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.batt-meter-bar.empty {
+  background: #ef4444;
+  animation: batt-empty-pulse 0.6s infinite alternate;
+}
+
+@keyframes batt-empty-pulse {
+  from { opacity: 0.2; }
+  to { opacity: 1; }
+}
+
+.batt-val-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+}
+
+.batt-pct {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #4ade80;
+  font-family: 'Courier New', monospace;
+}
+
+.batt-volts {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  font-family: 'Courier New', monospace;
+}
+
+/* Battery status badge */
+.batt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: #334155;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+  letter-spacing: 0.3px;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.batt-badge.charging {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  color: #4ade80;
+}
+
+.batt-badge.discharging {
+  background: rgba(234, 179, 8, 0.2);
+  border-color: #eab308;
+  color: #fde047;
+}
+
+.batt-badge.shorted {
+  background: rgba(239, 68, 68, 0.35);
+  border-color: #ef4444;
+  color: #fca5a5;
+  animation: batt-short-blink 0.3s infinite alternate;
+}
+
+@keyframes batt-short-blink {
+  from { box-shadow: 0 0 4px #ef4444; transform: scale(1); }
+  to { box-shadow: 0 0 12px #ef4444; transform: scale(1.04); }
+}
+
+.batt-badge.depleted {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+/* 5. Inverter */
+.inv-body {
+  width: 230px;
+  height: 130px;
+  background: #475569;
+  border: 3px solid #334155;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 10px;
+}
+
+.inv-fan-grill {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 2px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.fan-blades {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: conic-gradient(#64748b 0deg 45deg, transparent 45deg 90deg, #64748b 90deg 135deg, transparent 135deg 180deg, #64748b 180deg 225deg, transparent 225deg 270deg, #64748b 270deg 315deg, transparent 315deg 360deg);
+}
+
+.inv-fan-grill.spin .fan-blades {
+  animation: fan-spin 0.2s linear infinite;
+}
+
+@keyframes fan-spin {
+  to { transform: rotate(360deg); }
+}
+
+.inv-switch {
+  width: 24px;
+  height: 36px;
+  background: #0f172a;
+  border-radius: 3px;
+  padding: 2px;
+}
+
+.switch-toggle {
+  width: 100%;
+  height: 50%;
+  background: #ef4444;
+  border-radius: 2px;
+}
+
+.inv-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.ac-tag {
+  color: #38bdf8;
+}
+
+/* 6. AC 230V Fan Load */
+.ac-motor-body {
+  width: 160px;
+  height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ac-fan-housing {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid #334155;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ac-blades {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: conic-gradient(#0284c7 0deg 60deg, transparent 60deg 120deg, #0284c7 120deg 180deg, transparent 180deg 240deg, #0284c7 240deg 300deg, transparent 300deg 360deg);
+}
+
+.ac-fan-housing.spinning .ac-blades {
+  animation: fan-spin 0.15s linear infinite;
+}
+
+.comp-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #475569;
+  margin-top: 4px;
+}
+
+/* ================= TERMINALS (BIG CLICKABLE HITBOXES) ================= */
+.cmp-terminals {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 8px;
+}
+
+.cc-terminals {
+  gap: 0.75rem;
+}
+
+.inv-terminals {
+  gap: 0.85rem;
+}
+
+.tk-terminal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  min-width: 30px;
+  padding: 4px 2px;
+  border-radius: 4px;
+  transition: background 0.15s;
+  z-index: 20; /* High z-index so clicks always land on terminals */
+}
+
+.tk-terminal:hover {
+  background: rgba(2, 132, 199, 0.12);
+}
+
+.tk-terminal:hover .terminal-screw {
+  transform: scale(1.35);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.terminal-screw {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d4d4d8;
+  border: 2px solid #71717a;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  pointer-events: none; /* Mouse passes to .tk-terminal */
+}
+
+.terminal-screw::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 20%;
+  width: 60%;
+  height: 2px;
+  background: #52525b;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.screw-pos {
+  background: #fca5a5;
+  border-color: #ef4444;
+}
+
+.screw-neg {
+  background: #94a3b8;
+  border-color: #1e293b;
+}
+
+.screw-ac-live {
+  background: #fde68a;
+  border-color: #f59e0b;
+}
+
+.screw-ac-neu {
+  background: #bae6fd;
+  border-color: #0284c7;
+}
+
+.terminal-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #334155;
+  margin-top: 2px;
+  pointer-events: none;
+}
+
+/* Connecting state feedback */
+.tk-terminal.active-src {
+  background: rgba(2, 132, 199, 0.25);
+  outline: 2px dashed #0284c7;
+}
+
+.tk-terminal.active-src .terminal-screw {
+  transform: scale(1.4);
+  box-shadow: 0 0 12px #0284c7;
+}
+
+.tk-terminal.has-wire .terminal-screw::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  z-index: 2;
+}
+
+/* SVG Dynamic Sparks & Smoke Elements */
+.spark-zap-line {
+  stroke: #ffea00;
+  stroke-width: 3;
+  stroke-linecap: round;
+  fill: none;
+  filter: url(#spark-glow);
+  pointer-events: none;
+}
+
+.spark-star {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 6px #ffea00);
+  pointer-events: none;
+}
+
+.smoke-cloud {
+  fill: rgba(148, 163, 184, 0.45);
+  pointer-events: none;
+}
+
+/* Spark bubble / Fault Card */
+.sim-spark-bubble {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #18181b;
+  border: 2px solid #ef4444;
+  color: #ffffff;
+  padding: 16px 20px;
+  border-radius: 8px;
+  z-index: 200;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 24px rgba(239, 68, 68, 0.45);
+  max-width: 440px;
+  text-align: center;
+  animation: spark-card-shake 0.35s ease-in-out;
+}
+
+@keyframes spark-card-shake {
+  0%, 100% { transform: translate(-50%, -50%); }
+  20%, 60% { transform: translate(-52%, -50%); }
+  40%, 80% { transform: translate(-48%, -50%); }
+}
+
+.spark-bubble-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.spark-hazard-icon {
+  font-size: 1.4rem;
+}
+
+.spark-bubble-title {
+  color: #f87171;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.spark-bubble-desc {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+.spark-bubble-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.spark-action-btn {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spark-action-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* ================= TINKERCAD FOOTER ================= */
+.tk-footer {
+  height: 34px;
+  background: #ffffff;
+  border-top: 1px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  font-size: 0.8rem;
+  color: #475569;
+  flex-shrink: 0;
+}
