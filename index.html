@@ -3,357 +3,447 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tinkercad Circuits - Solar PV System</title>
+  <title>SolarWire • Guided Solar PV Wiring Challenge</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Tinkercad Header -->
-  <header class="tk-header">
-    <div class="tk-left">
-      <div class="tk-logo">
+  <!-- Header & Toolbar -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo">
         <svg viewBox="0 0 32 32" width="26" height="26">
           <rect x="2" y="2" width="13" height="13" fill="#099cec" rx="2"/>
           <rect x="17" y="2" width="13" height="13" fill="#ea2027" rx="2"/>
           <rect x="2" y="17" width="13" height="13" fill="#ffc107" rx="2"/>
           <rect x="17" y="17" width="13" height="13" fill="#009432" rx="2"/>
         </svg>
-        <span class="tk-title">Solar PV Circuit</span>
+        <span class="app-title">SolarWire</span>
       </div>
 
-      <div class="tk-toolbar">
-        <!-- Delete Tool -->
-        <button id="btn-delete" class="tk-btn" title="Delete Selected Wire (Del)">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
-        </button>
+      <nav class="toolbar">
+        <button id="btn-guide-toggle" class="btn primary">Guided Mode: ON</button>
+        <button id="btn-auto-step" class="btn" title="Auto-connect current step">⚡ Auto-Wire Step</button>
+        <button id="btn-next-hint" class="btn" title="Next hint">Next Hint ▶</button>
 
-        <div class="tk-divider"></div>
+        <div class="tool-divider"></div>
 
-        <!-- Wire Color Picker (like Tinkercad) -->
-        <div class="tk-color-picker" title="Wire Color">
-          <span class="tk-color-swatch" id="current-color-swatch"></span>
-          <select id="wire-color-select">
-            <option value="#ef4444" selected>Red (DC +)</option>
-            <option value="#1e293b">Black (DC -)</option>
-            <option value="#f59e0b">Orange (AC Live)</option>
-            <option value="#0284c7">Blue (AC Neutral)</option>
-            <option value="#10b981">Green (Earth)</option>
-          </select>
-        </div>
+        <!-- Conductor Colors -->
+        <button id="color-red" class="btn color-btn chosen" onclick="setWireColor('red')">🔴 L / DC +</button>
+        <button id="color-black" class="btn color-btn" onclick="setWireColor('black')">⚫ N / DC −</button>
+        <button id="color-earth" class="btn color-btn" onclick="setWireColor('earth')">🟢🟡 Earth (PE)</button>
 
-        <div class="tk-divider"></div>
+        <div class="tool-divider"></div>
 
-        <!-- Demo auto-wire, Fault Test & Reset -->
-        <button id="btn-demo" class="tk-btn demo-btn" title="Auto-connect complete solar circuit">⚡ Demo Wire</button>
-        <button id="btn-fault" class="tk-btn fault-btn" title="Simulate a wrong wire connection (Short Circuit / Reverse Polarity)">💥 Test Wrong Wire</button>
-        <button id="btn-clear" class="tk-btn text-btn" title="Clear all wires">Reset Wires</button>
-
-        <div class="tk-divider"></div>
-
-        <!-- Step-by-Step Component Wiring Guide Toggle -->
-        <button id="btn-guide-toggle" class="tk-btn guide-toggle-btn" title="Toggle Step-by-Step Wiring Guide (On/Off)">
-          <span class="guide-btn-icon">📖</span>
-          <span class="guide-btn-title">Guide</span>
-          <span id="guide-badge-status" class="guide-status-badge off">OFF</span>
-        </button>
-      </div>
+        <button id="btn-undo" class="btn" title="Undo (Ctrl+Z)">↶ Undo</button>
+        <button id="btn-delete" class="btn" title="Delete selected wire (Del)" disabled>Delete Wire</button>
+        <button id="btn-reset" class="btn" title="Reset all wires">Reset</button>
+        <button id="btn-check" class="btn primary" title="Check wiring">✓ Check Wiring</button>
+        <button id="btn-show-answer" class="btn" title="Reveal reference wiring">Show Answer</button>
+      </nav>
     </div>
 
-    <!-- Right: Simulation Controls -->
-    <div class="tk-right">
-      <div class="tk-batt-slider" title="Battery Charge Level">
+    <!-- Right Controls -->
+    <div class="header-right">
+      <div class="control-pill">
+        <button id="btn-sun-toggle" class="pill-btn active">☀️ Sun: ON</button>
+      </div>
+
+      <div class="control-pill">
         <span>🔋</span>
-        <input type="range" id="batt-slider" min="0" max="100" value="80">
-        <span id="batt-slider-val">80%</span>
+        <span id="header-batt-pct">80%</span>
+        <button id="btn-batt-refill" class="pill-btn" title="Reset battery to 80%">Reset 80%</button>
       </div>
 
-      <div class="tk-sun-slider" title="Sunlight Intensity">
-        <span>☀️</span>
-        <input type="range" id="sun-slider" min="0" max="100" value="100">
-        <span id="sun-val">100%</span>
+      <div class="control-pill">
+        <label for="speed-select">Speed:</label>
+        <select id="speed-select">
+          <option value="1" selected>1×</option>
+          <option value="60">60×</option>
+          <option value="3600">3600×</option>
+        </select>
       </div>
-
-      <button id="btn-sim" class="tk-sim-btn start">
-        <span class="sim-icon">▶</span>
-        <span class="sim-label">Start Simulation</span>
-      </button>
     </div>
   </header>
 
-  <!-- Tinkercad Workplane Canvas -->
-  <main class="tk-workplane" id="workplane">
-    <!-- SVG Canvas for Wires -->
-    <svg id="wire-canvas" class="tk-wire-svg">
-      <defs>
-        <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-          <feDropShadow dx="1" dy="2" stdDeviation="1.5" flood-opacity="0.3"/>
-        </filter>
-        <filter id="spark-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
-          <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <g id="guide-hints-group"></g>
-      <g id="wires-group"></g>
-      <g id="smoke-effects"></g>
-      <g id="electron-dots"></g>
-      <g id="spark-effects"></g>
-      <path id="temp-wire" class="draft-wire" d="" style="display:none;"></path>
-    </svg>
-
-    <!-- Physical Components on Workplane -->
-    
-    <!-- 1. SOLAR PANEL (DC GENERATOR) -->
-    <div class="tk-component" id="cmp-solar" style="left: 60px; top: 40px;">
-      <div class="cmp-body solar-body">
-        <div class="solar-grid-pattern"></div>
-        <div class="solar-badge">SOLAR PANEL (DC)</div>
-      </div>
-      <div class="cmp-terminals">
-        <div class="tk-terminal" data-id="solar_pos" data-type="DC" data-pol="+" title="Solar DC (+)">
-          <div class="terminal-screw screw-pos"></div>
-          <span class="terminal-text">+</span>
-        </div>
-        <div class="tk-terminal" data-id="solar_neg" data-type="DC" data-pol="-" title="Solar DC (-)">
-          <div class="terminal-screw screw-neg"></div>
-          <span class="terminal-text">-</span>
-        </div>
-      </div>
+  <!-- Step-by-Step Guide Banner -->
+  <section id="guide-banner" class="guide-banner">
+    <div class="guide-info">
+      <strong id="guide-title">GUIDE • CONNECTION 1 OF 15</strong>
+      <div id="guide-text">Solar Panel (+) ➔ PV DC MCB [IN+] · Use RED wire.</div>
+      <div class="guide-subtext">🔵 Blue ring = source · 🟡 Gold ring = destination. Click terminals to wire, or use Auto-Wire Step.</div>
     </div>
+    <div class="guide-progress-box">
+      <span id="wire-counter">0 / 15 Wires</span>
+      <div class="guide-bar-bg"><div id="guide-bar-fill" style="width: 0%;"></div></div>
+    </div>
+  </section>
 
-    <!-- 2. CHARGE CONTROLLER (DC REGULATOR) -->
-    <div class="tk-component" id="cmp-cc" style="left: 380px; top: 40px;">
-      <div class="cmp-body cc-body">
-        <div class="cc-lcd" id="cc-lcd">
-          <div class="lcd-main">
-            <span class="lcd-text" id="cc-lcd-text">12.7V</span>
-            <span class="lcd-pct" id="cc-lcd-pct">80%</span>
-          </div>
-          <div class="lcd-sub">
-            <span class="lcd-mode" id="cc-lcd-mode">STANDBY</span>
-            <span class="lcd-led" id="cc-led"></span>
+  <!-- Status Bar -->
+  <div id="status-bar" class="status-bar" role="status">
+    Choose a wire color, click a terminal to start, then click destination.
+  </div>
+
+  <!-- Workbench -->
+  <main class="workbench-viewport" id="workbench-viewport">
+    <div class="workbench" id="workbench">
+      <!-- SVG Wire Layer -->
+      <svg id="wire-svg" class="wire-svg">
+        <g id="wires-group"></g>
+        <path id="draft-wire" class="draft-wire" d="" style="display:none;"></path>
+      </svg>
+
+      <!-- 1. SOLAR PV PANEL (160 Wp) -->
+      <div class="card" id="card-pv" style="left: 40px; top: 40px; width: 230px; height: 260px;">
+        <div class="card-header">
+          <span class="card-title">SOLAR PV PANEL</span>
+          <span class="card-badge">160 Wp DC</span>
+        </div>
+        <div class="pv-body">
+          <div class="pv-cells"></div>
+          <div class="pv-info-badge">
+            <span id="pv-sun-icon">☀️</span>
+            <span id="pv-watts-text">128 W</span>
           </div>
         </div>
-        <div class="cc-icons">
-          <span>☀️ PV</span>
-          <span>🔋 BATT</span>
-          <span>💡 LOAD</span>
-        </div>
-      </div>
-      <div class="cmp-terminals cc-terminals">
-        <!-- PV -->
-        <div class="tk-terminal" data-id="cc_pv_pos" data-type="DC" data-pol="+" title="Controller PV (+)">
-          <div class="terminal-screw screw-pos"></div>
-          <span class="terminal-text">+</span>
-        </div>
-        <div class="tk-terminal" data-id="cc_pv_neg" data-type="DC" data-pol="-" title="Controller PV (-)">
-          <div class="terminal-screw screw-neg"></div>
-          <span class="terminal-text">-</span>
-        </div>
-        <!-- Battery -->
-        <div class="tk-terminal" data-id="cc_batt_pos" data-type="DC" data-pol="+" title="Controller Battery (+)">
-          <div class="terminal-screw screw-pos"></div>
-          <span class="terminal-text">+</span>
-        </div>
-        <div class="tk-terminal" data-id="cc_batt_neg" data-type="DC" data-pol="-" title="Controller Battery (-)">
-          <div class="terminal-screw screw-neg"></div>
-          <span class="terminal-text">-</span>
-        </div>
-        <!-- DC Load -->
-        <div class="tk-terminal" data-id="cc_load_pos" data-type="DC" data-pol="+" title="Controller DC Load (+)">
-          <div class="terminal-screw screw-pos"></div>
-          <span class="terminal-text">+</span>
-        </div>
-        <div class="tk-terminal" data-id="cc_load_neg" data-type="DC" data-pol="-" title="Controller DC Load (-)">
-          <div class="terminal-screw screw-neg"></div>
-          <span class="terminal-text">-</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. DC LOAD (12V BULB) -->
-    <div class="tk-component" id="cmp-dcload" style="left: 760px; top: 40px;">
-      <div class="cmp-body bulb-body">
-        <div class="bulb-glass" id="dc-bulb-glass">
-          <div class="bulb-filament" id="dc-bulb-filament"></div>
-        </div>
-        <div class="bulb-base"></div>
-        <div class="comp-label">12V DC BULB</div>
-      </div>
-      <div class="cmp-terminals">
-        <div class="tk-terminal" data-id="dcload_pos" data-type="DC" data-pol="+" title="Bulb (+)">
-          <div class="terminal-screw screw-pos"></div>
-          <span class="terminal-text">+</span>
-        </div>
-        <div class="tk-terminal" data-id="dcload_neg" data-type="DC" data-pol="-" title="Bulb (-)">
-          <div class="terminal-screw screw-neg"></div>
-          <span class="terminal-text">-</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. BATTERY (12V LEAD/LITHIUM DC) -->
-    <div class="tk-component" id="cmp-batt" style="left: 80px; top: 320px;">
-      <div class="cmp-body batt-body">
-        <div class="batt-top-bar">
-          <div class="batt-post-post pos-post"></div>
-          <div class="batt-handle"></div>
-          <div class="batt-post-post neg-post"></div>
-        </div>
-        <div class="batt-front">
-          <div class="batt-brand">
-            <span class="batt-brand-name">12V 100Ah</span>
-            <small class="batt-brand-sub">DEEP CYCLE SOLAR</small>
+        <div class="terminals-row bottom">
+          <div class="terminal" data-id="pv.+" data-color="red" title="Solar Panel (+) [pv.+]">
+            <div class="screw red"></div>
+            <span class="term-label">+</span>
           </div>
-          <!-- Battery Percentage Bar & Digital Readout -->
-          <div class="batt-gauge">
-            <div class="batt-meter-frame">
-              <div class="batt-meter-bar" id="batt-meter-bar" style="width: 80%;"></div>
+          <div class="terminal" data-id="pv.−" data-color="black" title="Solar Panel (−) [pv.−]">
+            <div class="screw black"></div>
+            <span class="term-label">−</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. DIN-RAIL MCB BANK -->
+      <div class="card mcb-bank" id="card-mcb" style="left: 310px; top: 40px; width: 550px; height: 260px;">
+        <div class="card-header mcb-header">
+          <span class="card-title">DIN-RAIL CIRCUIT BREAKER PROTECTION BANK</span>
+          <span class="card-badge">2-POLE</span>
+        </div>
+        <div class="mcb-bank-content">
+          <!-- PV MCB (C40) -->
+          <div class="mcb-module">
+            <div class="terminals-row top">
+              <div class="terminal" data-id="pvM.IN+" data-color="red" title="PV MCB Input (+) [pvM.IN+]">
+                <div class="screw red"></div>
+                <span class="term-label">IN+</span>
+              </div>
+              <div class="terminal" data-id="pvM.IN−" data-color="black" title="PV MCB Input (−) [pvM.IN−]">
+                <div class="screw black"></div>
+                <span class="term-label">IN−</span>
+              </div>
             </div>
-            <div class="batt-val-row">
-              <span class="batt-pct" id="batt-pct-text">80%</span>
-              <span class="batt-volts" id="batt-volts-text">12.7V</span>
+            <div class="mcb-face">
+              <span class="mcb-name">PV DC MCB</span>
+              <span class="mcb-spec">C40 / 40A</span>
+              <button class="mcb-lever" id="lever-pvM" onclick="toggleMCB('pvM')" title="Toggle switch">
+                <span class="lever-state" id="txt-pvM">OFF</span>
+              </button>
+              <span class="mcb-poles">2-POLE</span>
+            </div>
+            <div class="terminals-row bottom">
+              <div class="terminal" data-id="pvM.OUT+" data-color="red" title="PV MCB Output (+) [pvM.OUT+]">
+                <div class="screw red"></div>
+                <span class="term-label">OUT+</span>
+              </div>
+              <div class="terminal" data-id="pvM.OUT−" data-color="black" title="PV MCB Output (−) [pvM.OUT−]">
+                <div class="screw black"></div>
+                <span class="term-label">OUT−</span>
+              </div>
             </div>
           </div>
-          <div class="batt-badge" id="batt-badge">
-            <span class="batt-badge-icon" id="batt-badge-icon">⚡</span>
-            <span class="batt-badge-text" id="batt-badge-text">Standby</span>
+
+          <div class="mcb-sep"></div>
+
+          <!-- BATT MCB (C63) -->
+          <div class="mcb-module">
+            <div class="terminals-row top">
+              <div class="terminal" data-id="battM.SYS+" data-color="red" title="BATT MCB System Branch (+) [battM.SYS+]">
+                <div class="screw red"></div>
+                <span class="term-label">SYS+</span>
+              </div>
+              <div class="terminal" data-id="battM.SYS−" data-color="black" title="BATT MCB System Branch (−) [battM.SYS−]">
+                <div class="screw black"></div>
+                <span class="term-label">SYS−</span>
+              </div>
+            </div>
+            <div class="mcb-face">
+              <span class="mcb-name">BATT DC MCB</span>
+              <span class="mcb-spec">C63 / 63A</span>
+              <button class="mcb-lever" id="lever-battM" onclick="toggleMCB('battM')" title="Toggle switch">
+                <span class="lever-state" id="txt-battM">OFF</span>
+              </button>
+              <span class="mcb-poles">2-POLE</span>
+            </div>
+            <div class="terminals-row bottom">
+              <div class="terminal" data-id="battM.BAT+" data-color="red" title="BATT MCB Battery (+) [battM.BAT+]">
+                <div class="screw red"></div>
+                <span class="term-label">BAT+</span>
+              </div>
+              <div class="terminal" data-id="battM.BAT−" data-color="black" title="BATT MCB Battery (−) [battM.BAT−]">
+                <div class="screw black"></div>
+                <span class="term-label">BAT−</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mcb-sep"></div>
+
+          <!-- LOAD AC MCB (C32) -->
+          <div class="mcb-module">
+            <div class="terminals-row top">
+              <div class="terminal" data-id="load.IN L" data-color="red" title="LOAD MCB Input Live [load.IN L]">
+                <div class="screw red"></div>
+                <span class="term-label">IN L</span>
+              </div>
+              <div class="terminal" data-id="load.IN N" data-color="black" title="LOAD MCB Input Neutral [load.IN N]">
+                <div class="screw black"></div>
+                <span class="term-label">IN N</span>
+              </div>
+            </div>
+            <div class="mcb-face">
+              <span class="mcb-name">LOAD AC MCB</span>
+              <span class="mcb-spec">C32 / 32A</span>
+              <button class="mcb-lever" id="lever-load" onclick="toggleMCB('load')" title="Toggle switch">
+                <span class="lever-state" id="txt-load">OFF</span>
+              </button>
+              <span class="mcb-poles">2-POLE</span>
+            </div>
+            <div class="terminals-row bottom">
+              <div class="terminal" data-id="load.OUT L" data-color="red" title="LOAD MCB Output Live [load.OUT L]">
+                <div class="screw red"></div>
+                <span class="term-label">OUT L</span>
+              </div>
+              <div class="terminal" data-id="load.OUT N" data-color="black" title="LOAD MCB Output Neutral [load.OUT N]">
+                <div class="screw black"></div>
+                <span class="term-label">OUT N</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="cmp-terminals batt-terminals">
-        <div class="tk-terminal" data-id="batt_pos" data-type="DC" data-pol="+" title="Battery POS (+)">
-          <div class="terminal-screw screw-pos"></div>
-          <span class="terminal-text">+</span>
-        </div>
-        <div class="tk-terminal" data-id="batt_neg" data-type="DC" data-pol="-" title="Battery NEG (-)">
-          <div class="terminal-screw screw-neg"></div>
-          <span class="terminal-text">-</span>
-        </div>
-      </div>
-    </div>
 
-    <!-- 5. INVERTER (DC ➔ AC) -->
-    <div class="tk-component" id="cmp-inv" style="left: 380px; top: 320px;">
-      <div class="cmp-body inv-body">
-        <div class="inv-fan-grill" id="inv-fan">
-          <div class="fan-blades"></div>
+      <!-- 3. INVERTER (500 W) -->
+      <div class="card inverter-card" id="card-inv" style="left: 900px; top: 40px; width: 280px; height: 260px;">
+        <div class="card-header inv-header">
+          <span class="card-title">PURE SINE WAVE INVERTER</span>
+          <span class="card-badge">500 W</span>
         </div>
-        <div class="inv-switch" id="inv-switch">
-          <div class="switch-toggle"></div>
-        </div>
-        <div class="inv-labels">
-          <span>DC 12V IN</span>
-          <span class="ac-tag">AC 230V OUT</span>
-        </div>
-      </div>
-      <div class="cmp-terminals inv-terminals">
-        <!-- DC Input -->
-        <div class="tk-terminal" data-id="inv_dc_pos" data-type="DC" data-pol="+" title="Inverter DC (+)">
-          <div class="terminal-screw screw-pos"></div>
-          <span class="terminal-text">+</span>
-        </div>
-        <div class="tk-terminal" data-id="inv_dc_neg" data-type="DC" data-pol="-" title="Inverter DC (-)">
-          <div class="terminal-screw screw-neg"></div>
-          <span class="terminal-text">-</span>
-        </div>
-        <!-- AC Output -->
-        <div class="tk-terminal" data-id="inv_ac_live" data-type="AC" data-pol="L" title="AC Live (L)">
-          <div class="terminal-screw screw-ac-live"></div>
-          <span class="terminal-text">L</span>
-        </div>
-        <div class="tk-terminal" data-id="inv_ac_neu" data-type="AC" data-pol="N" title="AC Neutral (N)">
-          <div class="terminal-screw screw-ac-neu"></div>
-          <span class="terminal-text">N</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 6. AC LOAD (230V FAN / APPLIANCE) -->
-    <div class="tk-component" id="cmp-acload" style="left: 760px; top: 320px;">
-      <div class="cmp-body ac-motor-body">
-        <div class="ac-fan-housing" id="ac-fan-housing">
-          <div class="ac-blades" id="ac-blades"></div>
-        </div>
-        <div class="comp-label">230V AC FAN</div>
-      </div>
-      <div class="cmp-terminals">
-        <div class="tk-terminal" data-id="acload_live" data-type="AC" data-pol="L" title="AC Fan Live (L)">
-          <div class="terminal-screw screw-ac-live"></div>
-          <span class="terminal-text">L</span>
-        </div>
-        <div class="tk-terminal" data-id="acload_neu" data-type="AC" data-pol="N" title="AC Fan Neutral (N)">
-          <div class="terminal-screw screw-ac-neu"></div>
-          <span class="terminal-text">N</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step-by-Step Interactive Component Wiring Guide Panel -->
-    <div id="guide-panel" class="guide-floating-panel" style="display: none;">
-      <div class="guide-header" id="guide-header" title="Drag to move guide anywhere">
-        <div class="guide-header-title">
-          <span class="guide-icon">📖</span>
-          <span class="guide-step-tag" id="guide-step-tag">STEP 1 OF 5</span>
-          <span class="guide-drag-handle">⠿</span>
-        </div>
-        <div class="guide-header-actions">
-          <button id="btn-guide-min" class="guide-hdr-btn" title="Minimize / Expand Guide">−</button>
-          <button id="btn-guide-close" class="guide-hdr-btn close-btn" title="Turn Off Step-by-Step Guide">✕ Turn Off</button>
-        </div>
-      </div>
-
-      <div class="guide-body" id="guide-body">
-        <div class="guide-progress-bar-container">
-          <div class="guide-progress-bar" id="guide-progress-bar" style="width: 20%;"></div>
-        </div>
-
-        <h3 class="guide-step-title" id="guide-step-title">Connect Battery to Controller</h3>
-        <p class="guide-step-desc" id="guide-step-desc">
-          In solar PV installations, <strong>always wire the battery first</strong>! This powers up the controller so it can auto-detect the system voltage before PV power is applied.
-        </p>
-
-        <!-- Dynamic Connections Checklist for Current Step -->
-        <div class="guide-tasks" id="guide-tasks"></div>
-
-        <div class="guide-step-tip" id="guide-step-tip">
-          <span class="tip-icon">💡</span>
-          <span class="tip-text" id="guide-tip-text">Follow the glowing terminals on the board.</span>
-        </div>
-
-        <div class="guide-footer">
-          <div class="guide-nav-btns">
-            <button id="btn-guide-prev" class="guide-btn-nav" title="Previous step">◀ Prev</button>
-            <button id="btn-guide-next" class="guide-btn-nav" title="Next step">Next ▶</button>
+        <div class="terminals-row top">
+          <div class="terminal" data-id="inv.DC+" data-color="red" title="Inverter DC Input (+) [inv.DC+]">
+            <div class="screw red"></div>
+            <span class="term-label">DC+</span>
           </div>
-          <button id="btn-guide-autowire" class="guide-btn-autowire" title="Auto-connect this step's wires">⚡ Auto-Wire Step</button>
+          <div class="terminal" data-id="inv.DC−" data-color="black" title="Inverter DC Input (−) [inv.DC−]">
+            <div class="screw black"></div>
+            <span class="term-label">DC−</span>
+          </div>
+        </div>
+        <div class="inv-body">
+          <div class="inv-controls">
+            <div class="inv-screen">
+              <svg class="sine-svg" viewBox="0 0 100 30">
+                <path d="M 0 15 Q 12.5 3 25 15 T 50 15 T 75 15 T 100 15" fill="none" stroke="#4ade80" stroke-width="2"/>
+              </svg>
+              <span class="inv-screen-text">230V 50Hz</span>
+            </div>
+            <div class="inv-switch-box">
+              <button class="rocker-btn" id="btn-inv-switch" onclick="toggleInverter()" title="Toggle Inverter">
+                <span id="txt-inv-switch">O</span>
+              </button>
+              <div class="pilot-led" id="inv-led"></div>
+            </div>
+          </div>
+        </div>
+        <div class="terminals-row bottom">
+          <div class="terminal" data-id="inv.L" data-color="red" title="Inverter AC Live [inv.L]">
+            <div class="screw red"></div>
+            <span class="term-label">L</span>
+          </div>
+          <div class="terminal" data-id="inv.N" data-color="black" title="Inverter AC Neutral [inv.N]">
+            <div class="screw black"></div>
+            <span class="term-label">N</span>
+          </div>
+          <div class="terminal" data-id="inv.PE" data-color="earth" title="Inverter Protective Earth [inv.PE]">
+            <div class="screw earth"></div>
+            <span class="term-label">PE</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Tinkercad Fault / Spark Popup Card -->
-    <div id="sim-spark" class="sim-spark-bubble" style="display:none;">
-      <div class="spark-bubble-header">
-        <span class="spark-hazard-icon">⚡💥</span>
-        <strong id="spark-title" class="spark-bubble-title">SHORT CIRCUIT DETECTED!</strong>
+      <!-- 4. CHARGE CONTROLLER (Lumiax MC4010) -->
+      <div class="card" id="card-cc" style="left: 310px; top: 340px; width: 260px; height: 260px;">
+        <div class="card-header">
+          <span class="card-title">CHARGE CONTROLLER</span>
+          <span class="card-badge">LUMIAX</span>
+        </div>
+        <div class="terminals-row top cc-terminals">
+          <div class="terminal" data-id="cc.PV+" data-color="red" title="Controller PV (+) [cc.PV+]">
+            <div class="screw red"></div>
+            <span class="term-label">PV+</span>
+          </div>
+          <div class="terminal" data-id="cc.PV−" data-color="black" title="Controller PV (−) [cc.PV−]">
+            <div class="screw black"></div>
+            <span class="term-label">PV−</span>
+          </div>
+          <div class="terminal" data-id="cc.BAT+" data-color="red" title="Controller BAT (+) [cc.BAT+]">
+            <div class="screw red"></div>
+            <span class="term-label">BAT+</span>
+          </div>
+          <div class="terminal" data-id="cc.BAT−" data-color="black" title="Controller BAT (−) [cc.BAT−]">
+            <div class="screw black"></div>
+            <span class="term-label">BAT−</span>
+          </div>
+        </div>
+        <div class="cc-face">
+          <div class="cc-lcd">
+            <div class="cc-lcd-header">
+              <span>SOLAR MPPT</span>
+              <span id="cc-voltage">12.8 V</span>
+            </div>
+            <div class="cc-lcd-body">
+              <span id="cc-status-text">IDLE</span>
+              <div class="cc-indicators">
+                <span class="indicator" id="cc-led-pv">PV</span>
+                <span class="indicator" id="cc-led-bat">BAT</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <p id="spark-desc" class="spark-bubble-desc">A hazardous connection was detected between positive and negative terminals!</p>
-      <div class="spark-bubble-actions">
-        <button id="btn-fix-short" class="spark-action-btn">✂ Remove Shorted Wire</button>
+
+      <!-- 5. LiFePO4 BATTERY (640 Wh) -->
+      <div class="card battery-card" id="card-bat" style="left: 600px; top: 340px; width: 260px; height: 260px;">
+        <div class="card-header">
+          <span class="card-title">LiFePO₄ BATTERY</span>
+          <span class="card-badge">640 Wh</span>
+        </div>
+        <div class="terminals-row top">
+          <div class="terminal" data-id="bat.+" data-color="red" title="Battery Positive (+) [bat.+]">
+            <div class="screw red"></div>
+            <span class="term-label">+</span>
+          </div>
+          <div class="terminal" data-id="bat.−" data-color="black" title="Battery Negative (−) [bat.−]">
+            <div class="screw black"></div>
+            <span class="term-label">−</span>
+          </div>
+        </div>
+        <div class="bat-body">
+          <div class="bat-display">
+            <div class="bat-top-line">
+              <span class="bat-pct" id="bat-pct">80.00%</span>
+              <span class="bat-state" id="bat-state">IDLE</span>
+            </div>
+            <div class="bat-bar-track">
+              <div class="bat-bar-fill" id="bat-fill" style="width: 80%;"></div>
+            </div>
+            <div class="bat-metrics">
+              <span id="bat-wh">512.0 / 640 Wh</span>
+              <span id="bat-net">0.0 W</span>
+            </div>
+            <div class="bat-eta" id="bat-eta">Time to full: —</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. AC SOCKET OUTLET (Type G) -->
+      <div class="card socket-card" id="card-socket" style="left: 900px; top: 340px; width: 280px; height: 260px;">
+        <div class="card-header">
+          <span class="card-title">AC SOCKET OUTLET</span>
+          <span class="card-badge">TYPE G</span>
+        </div>
+        <div class="terminals-row top">
+          <div class="terminal" data-id="socket.L" data-color="red" title="Socket Live [socket.L]">
+            <div class="screw red"></div>
+            <span class="term-label">L</span>
+          </div>
+          <div class="terminal" data-id="socket.N" data-color="black" title="Socket Neutral [socket.N]">
+            <div class="screw black"></div>
+            <span class="term-label">N</span>
+          </div>
+          <div class="terminal" data-id="socket.E" data-color="earth" title="Socket Earth [socket.E]">
+            <div class="screw earth"></div>
+            <span class="term-label">E</span>
+          </div>
+        </div>
+        <div class="socket-face">
+          <div class="socket-plate">
+            <div class="pin-slot earth-slot"></div>
+            <div class="pin-slots-row">
+              <div class="pin-slot power-slot"></div>
+              <div class="pin-slot power-slot"></div>
+            </div>
+          </div>
+          <div class="socket-switch-wrap">
+            <button class="socket-switch" id="btn-socket-switch" onclick="toggleSocket()" title="Toggle Socket">
+              <span id="txt-socket-switch">O</span>
+            </button>
+            <span class="socket-status" id="txt-socket-status">SOCKET: OFF</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. READY-WIRED LOAD (1–3 × 18W LED LAMPS + PLUG) -->
+      <div class="card load-card" id="card-load" style="left: 310px; top: 630px; width: 870px; height: 250px;">
+        <div class="card-header load-header">
+          <span class="card-title" id="load-title">READY-WIRED LOAD • 1 × 18 W = 18 W</span>
+          <div class="load-controls">
+            <button class="btn-qty" onclick="changeLamps(-1)">−</button>
+            <span id="lamp-count-text" class="lamp-count-val">1 LAMP (18 W)</span>
+            <button class="btn-qty" onclick="changeLamps(1)">+</button>
+          </div>
+        </div>
+        <div class="load-body">
+          <div class="lamps-container">
+            <div class="lamp-tube" id="tube-1">
+              <div class="tube-glow" id="glow-1"></div>
+              <span class="tube-text">LED LAMP 1 • 18 W</span>
+            </div>
+            <div class="lamp-tube hidden" id="tube-2">
+              <div class="tube-glow" id="glow-2"></div>
+              <span class="tube-text">LED LAMP 2 • 18 W</span>
+            </div>
+            <div class="lamp-tube hidden" id="tube-3">
+              <div class="tube-glow" id="glow-3"></div>
+              <span class="tube-text">LED LAMP 3 • 18 W</span>
+            </div>
+          </div>
+
+          <div class="plug-container">
+            <svg class="cord-svg">
+              <path id="cord-path" d="M 0 60 H 50 V 60 H 90" fill="none" stroke="#222" stroke-width="7" stroke-linecap="round"/>
+            </svg>
+            <div class="plug-unit" id="plug-unit">
+              <div class="plug-pins" id="plug-pins">
+                <div class="pin p-earth"></div>
+                <div class="pins-pair">
+                  <div class="pin p-power"></div>
+                  <div class="pin p-power"></div>
+                </div>
+              </div>
+              <div class="plug-case">
+                <span>TYPE G</span>
+              </div>
+              <button class="plug-btn" id="btn-plug" onclick="togglePlug()">INSERT PLUG</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
 
-  <!-- Tinkercad Bottom Status / Info strip -->
-  <footer class="tk-footer">
-    <div class="tk-status-text" id="status-msg">Click a terminal to start wire, then click destination terminal. Press "Start Simulation" to run.</div>
-    <div class="tk-shortcuts">Press <strong>Del</strong> to remove wire • <strong>Esc</strong> to cancel</div>
-  </footer>
+  <!-- Reveal Answer Dialog -->
+  <dialog id="answer-dialog">
+    <h2>Reveal Reference Wiring?</h2>
+    <p>This will connect all 15 reference conductors according to standard off-grid solar specifications.</p>
+    <div class="dialog-btns">
+      <button class="btn" onclick="document.getElementById('answer-dialog').close()">Cancel</button>
+      <button class="btn primary" onclick="showAnswer();document.getElementById('answer-dialog').close()">Reveal Answer</button>
+    </div>
+  </dialog>
 
   <script src="game.js"></script>
 </body>

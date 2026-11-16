@@ -1,12 +1,12 @@
-// Tinkercad Circuits - Solar PV System Simulator
-// Robust Tinkercad wiring engine: Click-to-Connect + Drag-and-Drop + Short Circuit & Battery Simulation
+/* ==========================================================================
+   SolarWire • Engine & Guided Wiring Challenge
+   ========================================================================== */
 
-class TinkercadAudio {
+// --- Audio Synthesizer (Web Audio API) ---
+class SoundController {
   constructor() {
     this.ctx = null;
-    this.lastSparkTime = 0;
   }
-
   init() {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -16,1555 +16,776 @@ class TinkercadAudio {
       this.ctx.resume();
     }
   }
-
-  playWireSnap() {
+  tone(freq, type, duration, gain = 0.1) {
     this.init();
     if (!this.ctx) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(450, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.05);
-  }
-
-  playDelete() {
-    this.init();
-    if (!this.ctx) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(250, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.08);
-  }
-
-  playSimStart() {
-    this.init();
-    if (!this.ctx) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(520, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(660, this.ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.1);
-  }
-
-  playSpark() {
-    this.init();
-    if (!this.ctx) return;
-    const now = Date.now();
-    if (now - this.lastSparkTime < 180) return; // Prevent audio clipping
-    this.lastSparkTime = now;
-
-    // Realistic electrical arc sizzle crackle using synthetic noise & oscillator
-    const bufferSize = Math.floor(this.ctx.sampleRate * 0.18);
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
-    }
-    const noise = this.ctx.createBufferSource();
-    noise.buffer = buffer;
-
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 1600;
-    filter.Q.value = 2.5;
-
-    const osc = this.ctx.createOscillator();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(45, this.ctx.currentTime + 0.18);
-
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.45, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
-
-    noise.connect(filter);
-    filter.connect(gain);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    noise.start();
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.18);
-    noise.stop(this.ctx.currentTime + 0.18);
-  }
-
-  playAlarm() {
-    this.init();
-    if (!this.ctx) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(880, this.ctx.currentTime);
-    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.12);
-  }
-
-  playStepComplete() {
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 celebratory arpeggio
-    notes.forEach((freq, i) => {
+    try {
       const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, now + i * 0.08);
-      gain.gain.setValueAtTime(0.2, now + i * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.18);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now + i * 0.08);
-      osc.stop(now + i * 0.08 + 0.2);
-    });
+      const g = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      g.gain.setValueAtTime(gain, this.ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+      osc.connect(g);
+      g.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + duration);
+    } catch (e) {}
+  }
+  snap() { this.tone(580, 'sine', 0.08, 0.12); }
+  click() { this.tone(420, 'triangle', 0.05, 0.1); }
+  success() {
+    this.tone(523.25, 'sine', 0.12, 0.15);
+    setTimeout(() => this.tone(659.25, 'sine', 0.16, 0.15), 100);
+  }
+  error() { this.tone(200, 'sawtooth', 0.22, 0.2); }
+}
+const sound = new SoundController();
+
+// --- 15 Reference Connections ---
+const expected = [
+  ['pv.+', 'pvM.IN+', 'red'],
+  ['pv.−', 'pvM.IN−', 'black'],
+  ['pvM.OUT+', 'cc.PV+', 'red'],
+  ['pvM.OUT−', 'cc.PV−', 'black'],
+  ['bat.+', 'battM.BAT+', 'red'],
+  ['bat.−', 'battM.BAT−', 'black'],
+  ['battM.SYS+', 'cc.BAT+', 'red'],
+  ['battM.SYS−', 'cc.BAT−', 'black'],
+  ['battM.SYS+', 'inv.DC+', 'red'],
+  ['battM.SYS−', 'inv.DC−', 'black'],
+  ['inv.L', 'load.IN L', 'red'],
+  ['inv.N', 'load.IN N', 'black'],
+  ['inv.PE', 'socket.E', 'earth'],
+  ['load.OUT L', 'socket.L', 'red'],
+  ['load.OUT N', 'socket.N', 'black']
+];
+
+const terminalNames = {
+  'pv.+': 'Solar Panel (+)',
+  'pv.−': 'Solar Panel (−)',
+  'pvM.IN+': 'PV MCB [IN+]',
+  'pvM.IN−': 'PV MCB [IN−]',
+  'pvM.OUT+': 'PV MCB [OUT+]',
+  'pvM.OUT−': 'PV MCB [OUT−]',
+  'bat.+': 'Battery (+)',
+  'bat.−': 'Battery (−)',
+  'battM.BAT+': 'BATT MCB [BAT+]',
+  'battM.BAT−': 'BATT MCB [BAT−]',
+  'battM.SYS+': 'BATT MCB [SYS+]',
+  'battM.SYS−': 'BATT MCB [SYS−]',
+  'cc.PV+': 'Charge Controller [PV+]',
+  'cc.PV−': 'Charge Controller [PV−]',
+  'cc.BAT+': 'Charge Controller [BAT+]',
+  'cc.BAT−': 'Charge Controller [BAT−]',
+  'inv.DC+': 'Inverter [DC+]',
+  'inv.DC−': 'Inverter [DC−]',
+  'inv.L': 'Inverter [L]',
+  'inv.N': 'Inverter [N]',
+  'inv.PE': 'Inverter [PE Earth]',
+  'load.IN L': 'LOAD MCB [IN L]',
+  'load.IN N': 'LOAD MCB [IN N]',
+  'load.OUT L': 'LOAD MCB [OUT L]',
+  'load.OUT N': 'LOAD MCB [OUT N]',
+  'socket.L': 'Socket [L]',
+  'socket.N': 'Socket [N]',
+  'socket.E': 'Socket [E Earth]'
+};
+
+const key = (a, b) => [a, b].sort().join('|');
+const answers = new Map(expected.map(e => [key(e[0], e[1]), e[2]]));
+
+// Direct Terminal Element Cache (Never fails on CSS escape / special characters)
+const terminalElements = new Map();
+
+// --- State Variables ---
+let wires = [];
+let history = [];
+let selectedWireIndex = null;
+let startTerminalId = null;
+let currentWireColor = 'red';
+let guidedMode = true;
+let currentHint = null;
+
+let switches = { pvM: false, battM: false, load: false };
+let inverterOn = false;
+let socketOn = false;
+let pluggedIn = false;
+let sunOn = true;
+let lampCount = 1;
+let simSpeed = 1;
+
+let energy = 512.0; // 640 Wh max (nominal 80% = 512 Wh)
+let lastTick = Date.now();
+
+let badWires = new Set();
+let missingTerminals = new Set();
+
+// --- DOM References ---
+const $ = id => document.getElementById(id);
+const statusEl = $('status-bar');
+
+function setStatus(msg, isError = false) {
+  if (statusEl) {
+    statusEl.textContent = msg;
+    statusEl.style.color = isError ? '#b91c1c' : '#143d22';
   }
 }
 
-const GUIDE_STEPS = [
-  {
-    step: 1,
-    title: "1. Connect Battery to Controller",
-    badge: "STEP 1 OF 5",
-    desc: "In solar PV installations, <strong>always wire the battery first</strong>! This allows the charge controller to power on and identify the system voltage (12V) before any solar panel voltage is applied.",
-    tip: "Use Red wire for Battery (+) to Controller Batt (+), and Black wire for Battery (-) to Controller Batt (-).",
-    wires: [
-      { from: 'batt_pos', to: 'cc_batt_pos', label: 'Battery (+) ➔ Controller BATT (+)', color: '#ef4444' },
-      { from: 'batt_neg', to: 'cc_batt_neg', label: 'Battery (-) ➔ Controller BATT (-)', color: '#1e293b' }
-    ]
-  },
-  {
-    step: 2,
-    title: "2. Connect Solar Panel to Controller",
-    badge: "STEP 2 OF 5",
-    desc: "Now connect the <strong>Solar Panel (PV)</strong> to the charge controller input terminals. Photons from sunlight produce DC voltage which flows through the controller to charge the battery.",
-    tip: "Connect PV (+) to Controller PV (+), and PV (-) to Controller PV (-).",
-    wires: [
-      { from: 'solar_pos', to: 'cc_pv_pos', label: 'Solar Panel (+) ➔ Controller PV (+)', color: '#ef4444' },
-      { from: 'solar_neg', to: 'cc_pv_neg', label: 'Solar Panel (-) ➔ Controller PV (-)', color: '#1e293b' }
-    ]
-  },
-  {
-    step: 3,
-    title: "3. Connect 12V DC Bulb to Controller",
-    badge: "STEP 3 OF 5",
-    desc: "Connect the <strong>12V DC Bulb</strong> to the controller's DC Load terminals. The charge controller provides low-voltage disconnect protection to safeguard battery life.",
-    tip: "Wire Controller LOAD (+) to Bulb (+), and Controller LOAD (-) to Bulb (-).",
-    wires: [
-      { from: 'cc_load_pos', to: 'dcload_pos', label: 'Controller LOAD (+) ➔ 12V Bulb (+)', color: '#ef4444' },
-      { from: 'cc_load_neg', to: 'dcload_neg', label: 'Controller LOAD (-) ➔ 12V Bulb (-)', color: '#1e293b' }
-    ]
-  },
-  {
-    step: 4,
-    title: "4. Connect Battery to Power Inverter",
-    badge: "STEP 4 OF 5",
-    desc: "Connect the <strong>Inverter DC Input</strong> directly to the Battery. Inverters pull high surge currents and convert 12V Direct Current into 230V Alternating Current.",
-    tip: "Double check polarity! Reversing DC connections will trip the short-circuit safeguard.",
-    wires: [
-      { from: 'batt_pos', to: 'inv_dc_pos', label: 'Battery (+) ➔ Inverter DC (+)', color: '#ef4444' },
-      { from: 'batt_neg', to: 'inv_dc_neg', label: 'Battery (-) ➔ Inverter DC (-)', color: '#1e293b' }
-    ]
-  },
-  {
-    step: 5,
-    title: "5. Connect Inverter to 230V AC Fan",
-    badge: "STEP 5 OF 5",
-    desc: "Connect the <strong>230V AC Fan</strong> to the inverter's AC Output terminals. The inverter delivers 230V AC electricity to run household appliances!",
-    tip: "Use Orange wire for AC Live (L) and Blue wire for AC Neutral (N).",
-    wires: [
-      { from: 'inv_ac_live', to: 'acload_live', label: 'Inverter AC Live (L) ➔ AC Fan (L)', color: '#f59e0b' },
-      { from: 'inv_ac_neu', to: 'acload_neu', label: 'Inverter AC Neutral (N) ➔ AC Fan (N)', color: '#0284c7' }
-    ]
-  },
-  {
-    step: 6,
-    title: "🎉 Solar PV Circuit Complete!",
-    badge: "READY TO SIMULATE",
-    desc: "All 5 core components are properly attached! Now click <strong>'Start Simulation' (▶)</strong> at the top right to start power flow and test the sunlight and battery sliders.",
-    tip: "You can turn this guide OFF at any time using the 'Guide' button in the toolbar.",
-    wires: [],
-    isFinished: true
-  }
-];
+// --- Wire Color Selector ---
+function setWireColor(c) {
+  currentWireColor = c;
+  ['red', 'black', 'earth'].forEach(k => {
+    const el = $('color-' + k);
+    if (el) el.classList.toggle('chosen', k === c);
+  });
+}
 
-const TK_SOUND = new TinkercadAudio();
+// --- Terminal Coordinate Calculation ---
+function getTerminalCenter(id) {
+  const term = terminalElements.get(id);
+  if (!term) return null;
+  const screw = term.querySelector('.screw') || term;
+  const rTerm = screw.getBoundingClientRect();
+  const rView = $('workbench').getBoundingClientRect();
+  return {
+    x: rTerm.left - rView.left + rTerm.width / 2,
+    y: rTerm.top - rView.top + rTerm.height / 2
+  };
+}
 
-class TinkercadCircuits {
-  constructor() {
-    this.wires = []; // { id, from, to, color }
-    this.selectedWireId = null;
-    this.currentColor = '#ef4444';
-    this.isSimulating = false;
-    this.sunlight = 100;
+// --- Manual Terminal Click Handling ---
+function handleTerminalClick(id) {
+  sound.init();
 
-    // Battery State & Simulation
-    this.batteryPct = 80;
-    this.batteryVolts = 12.7;
-    this.batteryState = 'idle'; // 'idle', 'charging', 'discharging', 'empty', 'shorted'
-
-    // Fault & Short Circuit State
-    this.activeFaults = []; // [{ type, title, desc, terminals: [], wires: [] }]
-    this.sparkParticles = [];
-    this.smokeParticles = [];
-
-    // Active wire being drawn
-    this.activeStartTerminal = null;
-    this.mousePos = { x: 0, y: 0 };
-    this.isMouseDownOnTerminal = false;
-
-    // Component Dragging
-    this.draggedComponent = null;
-    this.dragOffset = { x: 0, y: 0 };
-
-    // DOM Elements Cache
-    this.workplane = document.getElementById('workplane');
-    this.wiresGroup = document.getElementById('wires-group');
-    this.electronDots = document.getElementById('electron-dots');
-    this.sparkEffects = document.getElementById('spark-effects');
-    this.smokeEffects = document.getElementById('smoke-effects');
-    this.tempWire = document.getElementById('temp-wire');
-    this.btnSim = document.getElementById('btn-sim');
-    this.btnDelete = document.getElementById('btn-delete');
-    this.btnClear = document.getElementById('btn-clear');
-    this.btnDemo = document.getElementById('btn-demo');
-    this.btnFault = document.getElementById('btn-fault');
-    this.btnFixShort = document.getElementById('btn-fix-short');
-    this.colorSelect = document.getElementById('wire-color-select');
-    this.colorSwatch = document.getElementById('current-color-swatch');
-    this.sunSlider = document.getElementById('sun-slider');
-    this.sunVal = document.getElementById('sun-val');
-    this.battSlider = document.getElementById('batt-slider');
-    this.battSliderVal = document.getElementById('batt-slider-val');
-    this.statusMsg = document.getElementById('status-msg');
-    this.sparkBubble = document.getElementById('sim-spark');
-    this.sparkTitle = document.getElementById('spark-title');
-    this.sparkDesc = document.getElementById('spark-desc');
-
-    // Battery Component DOM Elements
-    this.battMeterBar = document.getElementById('batt-meter-bar');
-    this.battPctText = document.getElementById('batt-pct-text');
-    this.battVoltsText = document.getElementById('batt-volts-text');
-    this.battBadge = document.getElementById('batt-badge');
-    this.battBadgeIcon = document.getElementById('batt-badge-icon');
-    this.battBadgeText = document.getElementById('batt-badge-text');
-
-    // Charge Controller LCD Elements
-    this.ccLcdText = document.getElementById('cc-lcd-text');
-    this.ccLcdPct = document.getElementById('cc-lcd-pct');
-    this.ccLcdMode = document.getElementById('cc-lcd-mode');
-    this.ccLed = document.getElementById('cc-led');
-
-    // Step-by-Step Component Wiring Guide State & Elements
-    this.isGuideActive = false;
-    this.currentGuideStepIndex = 0;
-    this.isGuideMinimized = false;
-    this.guideDragData = { isDragging: false, startX: 0, startY: 0, startLeft: 0, startTop: 0 };
-
-    this.btnGuideToggle = document.getElementById('btn-guide-toggle');
-    this.guideBadgeStatus = document.getElementById('guide-badge-status');
-    this.guidePanel = document.getElementById('guide-panel');
-    this.guideHeader = document.getElementById('guide-header');
-    this.guideStepTag = document.getElementById('guide-step-tag');
-    this.guideProgressBar = document.getElementById('guide-progress-bar');
-    this.guideStepTitle = document.getElementById('guide-step-title');
-    this.guideStepDesc = document.getElementById('guide-step-desc');
-    this.guideTasks = document.getElementById('guide-tasks');
-    this.guideTipText = document.getElementById('guide-tip-text');
-    this.btnGuideMin = document.getElementById('btn-guide-min');
-    this.btnGuideClose = document.getElementById('btn-guide-close');
-    this.btnGuidePrev = document.getElementById('btn-guide-prev');
-    this.btnGuideNext = document.getElementById('btn-guide-next');
-    this.btnGuideAutowire = document.getElementById('btn-guide-autowire');
-    this.guideHintsGroup = document.getElementById('guide-hints-group');
-
-    this.init();
+  if (inverterOn || Object.values(switches).some(Boolean) || socketOn) {
+    setStatus('Safety rule: Switch OFF all MCBs, inverter and socket before changing wiring!', true);
+    sound.error();
+    return;
   }
 
-  init() {
-    this.bindEvents();
-    this.setupTerminals();
-    this.setupComponentDragging();
-    this.setupGuideControls();
-    this.setupGuideDragging();
-    this.updateBatteryUI();
-    this.startAnimationLoop();
-
-    window.addEventListener('resize', () => {
-      this.renderWires();
-      if (this.isGuideActive) this.updateGuideTargetHighlights();
-    });
+  // Click 1: Select start terminal
+  if (!startTerminalId) {
+    startTerminalId = id;
+    setStatus(`Selected ${terminalNames[id] || id}. Now click destination terminal.`);
+    sound.click();
+    renderTerminalHighlights();
+    return;
   }
 
-  bindEvents() {
-    // Wire color dropdown
-    this.colorSelect.addEventListener('change', (e) => {
-      this.currentColor = e.target.value;
-      this.colorSwatch.style.background = this.currentColor;
-      if (this.selectedWireId) {
-        const wire = this.wires.find(w => w.id === this.selectedWireId);
-        if (wire) {
-          wire.color = this.currentColor;
-          this.renderWires();
-        }
-      }
-    });
-
-    // Delete tool
-    this.btnDelete.addEventListener('click', () => {
-      this.deleteSelectedWire();
-    });
-
-    // Reset wires
-    this.btnClear.addEventListener('click', () => {
-      this.wires = [];
-      this.selectedWireId = null;
-      this.activeFaults = [];
-      this.cancelDraftWire();
-      TK_SOUND.playDelete();
-      this.renderWires();
-      this.updateTerminalVisuals();
-      this.evaluateCircuit();
-      if (this.isGuideActive) this.renderGuideStep();
-    });
-
-    // Demo Auto-wire button
-    this.btnDemo.addEventListener('click', () => {
-      this.autoConnectFullSystem();
-    });
-
-    // Test Wrong Wire / Fault button
-    if (this.btnFault) {
-      this.btnFault.addEventListener('click', () => {
-        this.autoConnectFaultySystem();
-      });
-    }
-
-    // Fix Shorted Wire button in alert banner
-    if (this.btnFixShort) {
-      this.btnFixShort.addEventListener('click', () => {
-        this.fixActiveFault();
-      });
-    }
-
-    // Keyboard controls
-    window.addEventListener('keydown', (e) => {
-      if ((e.key === 'Delete' || e.key === 'Backspace') && this.selectedWireId) {
-        this.deleteSelectedWire();
-      }
-      if (e.key === 'Escape') {
-        this.cancelDraftWire();
-      }
-    });
-
-    // Start / Stop Simulation
-    this.btnSim.addEventListener('click', () => {
-      this.toggleSimulation();
-    });
-
-    // Sunlight slider
-    this.sunSlider.addEventListener('input', (e) => {
-      this.sunlight = parseInt(e.target.value, 10);
-      this.sunVal.textContent = `${this.sunlight}%`;
-      if (this.isSimulating) this.evaluateCircuit();
-    });
-
-    // Battery Percentage Slider (User interactive control)
-    if (this.battSlider) {
-      this.battSlider.addEventListener('input', (e) => {
-        this.batteryPct = parseFloat(e.target.value);
-        if (this.battSliderVal) this.battSliderVal.textContent = `${Math.round(this.batteryPct)}%`;
-        this.updateBatteryUI();
-        if (this.isSimulating) this.evaluateCircuit();
-      });
-    }
-
-    // Mouse tracking on workplane for live draft wire
-    this.workplane.addEventListener('mousemove', (e) => {
-      const wpRect = this.workplane.getBoundingClientRect();
-      this.mousePos = {
-        x: e.clientX - wpRect.left,
-        y: e.clientY - wpRect.top
-      };
-      if (this.activeStartTerminal) {
-        this.updateDraftWire();
-      }
-    });
-
-    // Clicking anywhere empty on the workplane
-    this.workplane.addEventListener('click', (e) => {
-      if (!e.target.closest('.tk-terminal') && !e.target.closest('.tk-wire') && !e.target.closest('.tk-toolbar') && !e.target.closest('.sim-spark-bubble')) {
-        this.cancelDraftWire();
-        this.selectedWireId = null;
-        this.renderWires();
-      }
-    });
-
-    // Right-click cancels draft wire
-    this.workplane.addEventListener('contextmenu', (e) => {
-      if (this.activeStartTerminal) {
-        e.preventDefault();
-        this.cancelDraftWire();
-      }
-    });
+  // Click same terminal: cancel
+  if (startTerminalId === id) {
+    startTerminalId = null;
+    hideDraftWire();
+    setStatus('Selection cancelled.');
+    renderTerminalHighlights();
+    return;
   }
 
-  /* ================= TERMINAL WIRING (CLICK-TO-CONNECT & DRAG-AND-DROP) ================= */
-  setupTerminals() {
-    document.querySelectorAll('.tk-terminal').forEach(term => {
-      term.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        TK_SOUND.init();
-
-        if (!this.activeStartTerminal) {
-          this.startDraftWire(term);
-          this.isMouseDownOnTerminal = true;
-        } else if (this.activeStartTerminal === term) {
-          this.cancelDraftWire();
-        } else {
-          this.completeWire(this.activeStartTerminal, term);
-        }
-      });
-
-      term.addEventListener('mouseup', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (this.activeStartTerminal && this.activeStartTerminal !== term && this.isMouseDownOnTerminal) {
-          this.completeWire(this.activeStartTerminal, term);
-        }
-      });
-
-      term.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        TK_SOUND.init();
-
-        if (!this.activeStartTerminal) {
-          this.startDraftWire(term);
-        } else if (this.activeStartTerminal === term) {
-          this.cancelDraftWire();
-        } else {
-          this.completeWire(this.activeStartTerminal, term);
-        }
-      }, { passive: false });
-    });
-
-    window.addEventListener('mouseup', () => {
-      this.isMouseDownOnTerminal = false;
-    });
+  // Check if connection already exists
+  const connKey = key(startTerminalId, id);
+  if (wires.some(w => key(w.a, w.b) === connKey)) {
+    setStatus('A wire is already connected between these two terminals.', true);
+    sound.error();
+    startTerminalId = null;
+    hideDraftWire();
+    renderTerminalHighlights();
+    return;
   }
 
-  getTerminalCenter(el) {
-    const screw = el.querySelector('.terminal-screw');
-    const rect = screw ? screw.getBoundingClientRect() : el.getBoundingClientRect();
-    const wpRect = this.workplane.getBoundingClientRect();
-    return {
-      x: rect.left - wpRect.left + rect.width / 2,
-      y: rect.top - wpRect.top + rect.height / 2
-    };
+  // Record history for Undo
+  saveHistory();
+
+  // Add the wire
+  wires.push({
+    a: startTerminalId,
+    b: id,
+    color: currentWireColor
+  });
+  sound.snap();
+
+  startTerminalId = null;
+  hideDraftWire();
+  selectedWireIndex = null;
+  badWires.clear();
+  missingTerminals.clear();
+
+  // Validate wire against reference
+  const lastWire = wires[wires.length - 1];
+  const expectedColor = answers.get(key(lastWire.a, lastWire.b));
+
+  if (!expectedColor || expectedColor !== lastWire.color) {
+    badWires.add(wires.length - 1);
+    setStatus('Check wire: destination or color does not match reference. Use "Delete Wire" or "Undo" to fix.', true);
+    sound.error();
+  } else {
+    setStatus(`Connected: ${terminalNames[lastWire.a]} ➔ ${terminalNames[lastWire.b]}`);
+    sound.success();
   }
 
-  startDraftWire(term) {
-    this.activeStartTerminal = term;
-    term.classList.add('active-src');
+  render();
+  updateGuide();
+}
 
-    // Auto-select color based on terminal polarity
-    const type = term.dataset.type;
-    const pol = term.dataset.pol;
-    if (type === 'DC') {
-      this.currentColor = (pol === '+') ? '#ef4444' : '#1e293b';
+function hideDraftWire() {
+  const draftWire = $('draft-wire');
+  if (draftWire) draftWire.style.display = 'none';
+}
+
+// --- History & Undo ---
+function saveHistory() {
+  history.push(wires.map(w => ({ ...w })));
+  if (history.length > 50) history.shift();
+}
+
+function undo() {
+  if (history.length > 0) {
+    wires = history.pop();
+    startTerminalId = null;
+    hideDraftWire();
+    selectedWireIndex = null;
+    badWires.clear();
+    missingTerminals.clear();
+    render();
+    updateGuide();
+    setStatus('Last change undone.');
+    sound.click();
+  }
+}
+
+function removeSelectedWire() {
+  if (selectedWireIndex !== null && wires[selectedWireIndex]) {
+    saveHistory();
+    wires.splice(selectedWireIndex, 1);
+    selectedWireIndex = null;
+    badWires.clear();
+    missingTerminals.clear();
+    render();
+    updateGuide();
+    setStatus('Wire removed.');
+    sound.click();
+  }
+}
+
+function resetAll() {
+  if (wires.length && !confirm('Reset and remove all wires?')) return;
+  saveHistory();
+  wires = [];
+  startTerminalId = null;
+  hideDraftWire();
+  selectedWireIndex = null;
+  badWires.clear();
+  missingTerminals.clear();
+  render();
+  updateGuide();
+  setStatus('All wires cleared.');
+  sound.click();
+}
+
+// --- Auto-Wire Current Step ---
+function autoWireStep() {
+  sound.init();
+  if (inverterOn || Object.values(switches).some(Boolean) || socketOn) {
+    setStatus('Switch OFF all switches before wiring.', true);
+    sound.error();
+    return;
+  }
+  if (!currentHint) {
+    setStatus('All 15 reference connections are already completed!');
+    sound.success();
+    return;
+  }
+
+  saveHistory();
+  const k = key(currentHint[0], currentHint[1]);
+  wires = wires.filter(w => key(w.a, w.b) !== k);
+
+  wires.push({
+    a: currentHint[0],
+    b: currentHint[1],
+    color: currentHint[2]
+  });
+
+  badWires.clear();
+  missingTerminals.clear();
+  startTerminalId = null;
+  hideDraftWire();
+  selectedWireIndex = null;
+
+  sound.snap();
+  setStatus(`Auto-wired: ${terminalNames[currentHint[0]]} ➔ ${terminalNames[currentHint[1]]}`);
+  render();
+  updateGuide();
+}
+
+// --- Check Wiring ---
+function isWiringValid() {
+  if (wires.length !== expected.length) return false;
+  return wires.every(w => answers.get(key(w.a, w.b)) === w.color);
+}
+
+function checkWiring() {
+  sound.init();
+  badWires.clear();
+  missingTerminals.clear();
+
+  let correctCount = 0;
+  wires.forEach((w, i) => {
+    if (answers.get(key(w.a, w.b)) === w.color) {
+      correctCount++;
     } else {
-      this.currentColor = (pol === 'L') ? '#f59e0b' : '#0284c7';
+      badWires.add(i);
     }
-    this.colorSelect.value = this.currentColor;
-    this.colorSwatch.style.background = this.currentColor;
+  });
 
-    this.tempWire.style.stroke = this.currentColor;
-    this.tempWire.style.display = 'block';
-    this.updateDraftWire();
+  expected.forEach(e => {
+    const found = wires.some(w => key(w.a, w.b) === key(e[0], e[1]) && w.color === e[2]);
+    if (!found) {
+      missingTerminals.add(e[0]);
+      missingTerminals.add(e[1]);
+    }
+  });
 
-    this.statusMsg.textContent = `Wire started from ${term.title}. Click destination terminal to connect (Esc to cancel).`;
+  render();
+
+  if (badWires.size === 0 && correctCount === expected.length) {
+    setStatus('Wiring 100% correct! Next: Switch ON BATT & LOAD MCBs, turn ON Inverter, INSERT PLUG, and turn ON Socket.');
+    sound.success();
+  } else {
+    setStatus(`${correctCount}/${expected.length} correct connections. ${badWires.size} incorrect wire(s). Pulsing gold terminals need attention.`, true);
+    sound.error();
+  }
+}
+
+// --- Reveal Reference Answer ---
+function showAnswer() {
+  saveHistory();
+  wires = expected.map(e => ({ a: e[0], b: e[1], color: e[2] }));
+  startTerminalId = null;
+  hideDraftWire();
+  selectedWireIndex = null;
+  badWires.clear();
+  missingTerminals.clear();
+  render();
+  updateGuide();
+  setStatus('Complete reference wiring displayed. Switch ON BATT and LOAD MCBs, turn ON inverter, and insert plug.');
+  sound.success();
+}
+
+// --- Step-by-Step Guided Mode ---
+function updateGuide() {
+  currentHint = expected.find(e => !wires.some(w => key(w.a, w.b) === key(e[0], e[1]) && w.color === e[2])) || null;
+
+  const banner = $('guide-banner');
+  if (banner) {
+    banner.classList.toggle('disabled', !guidedMode);
   }
 
-  updateDraftWire() {
-    if (!this.activeStartTerminal) return;
-    const p1 = this.getTerminalCenter(this.activeStartTerminal);
-    const p2 = this.mousePos;
+  const completedCount = expected.length - (expected.filter(e => !wires.some(w => key(w.a, w.b) === key(e[0], e[1]) && w.color === e[2])).length);
+  const pct = Math.round((completedCount / expected.length) * 100);
+
+  if ($('wire-counter')) $('wire-counter').textContent = `${completedCount} / ${expected.length} Wires`;
+  if ($('guide-bar-fill')) $('guide-bar-fill').style.width = pct + '%';
+
+  if (!guidedMode) {
+    renderTerminalHighlights();
+    return;
+  }
+
+  if (currentHint) {
+    const stepNum = expected.indexOf(currentHint) + 1;
+    if ($('guide-title')) $('guide-title').textContent = `GUIDE • CONNECTION ${stepNum} OF ${expected.length}`;
+    const colorLabel = currentHint[2] === 'earth' ? 'GREEN-YELLOW (Earth)' : currentHint[2].toUpperCase();
+    if ($('guide-text')) {
+      $('guide-text').innerHTML = `<strong>${terminalNames[currentHint[0]] || currentHint[0]}</strong> ➔ <strong>${terminalNames[currentHint[1]] || currentHint[1]}</strong> · Use <strong>${colorLabel}</strong> wire.`;
+    }
+    setWireColor(currentHint[2]);
+  } else {
+    if ($('guide-title')) $('guide-title').textContent = 'ALL 15 CONNECTIONS COMPLETED! 🎉';
+    if ($('guide-text')) $('guide-text').textContent = 'Follow energization sequence: BATT & LOAD MCBs ON ➔ Inverter ON ➔ Insert Plug ➔ Socket ON.';
+  }
+
+  renderTerminalHighlights();
+}
+
+function nextHint() {
+  updateGuide();
+  sound.click();
+}
+
+function toggleGuide() {
+  guidedMode = !guidedMode;
+  const btn = $('btn-guide-toggle');
+  if (btn) {
+    btn.textContent = `Guided Mode: ${guidedMode ? 'ON' : 'OFF'}`;
+    btn.classList.toggle('primary', guidedMode);
+  }
+  updateGuide();
+  sound.click();
+}
+
+// --- Interactive Switches & Controls ---
+function toggleMCB(id) {
+  sound.init();
+  switches[id] = !switches[id];
+  const lever = $('lever-' + id);
+  const txt = $('txt-' + id);
+  if (lever) lever.classList.toggle('on', switches[id]);
+  if (txt) txt.textContent = switches[id] ? 'ON' : 'OFF';
+  sound.click();
+  updateSystemState();
+}
+
+function toggleInverter() {
+  sound.init();
+  if (!inverterOn && (!isWiringValid() || !switches.battM || !switches.load)) {
+    setStatus('Start-up Sequence: Wire correctly ➔ Turn ON BATT & LOAD MCBs ➔ Then turn ON Inverter.', true);
+    sound.error();
+    return;
+  }
+  inverterOn = !inverterOn;
+  const btn = $('btn-inv-switch');
+  const txt = $('txt-inv-switch');
+  if (btn) btn.classList.toggle('on', inverterOn);
+  if (txt) txt.textContent = inverterOn ? 'I' : 'O';
+  sound.click();
+  updateSystemState();
+}
+
+function toggleSocket() {
+  sound.init();
+  if (!socketOn && (!isWiringValid() || !switches.battM || !switches.load || !inverterOn || !pluggedIn)) {
+    setStatus('Socket requires: Valid Wiring ➔ BATT & LOAD MCBs ON ➔ Inverter ON ➔ Plug INSERTED.', true);
+    sound.error();
+    return;
+  }
+  socketOn = !socketOn;
+  const btn = $('btn-socket-switch');
+  const txt = $('txt-socket-switch');
+  const statusTxt = $('txt-socket-status');
+  if (btn) btn.classList.toggle('on', socketOn);
+  if (txt) txt.textContent = socketOn ? 'I' : 'O';
+  if (statusTxt) statusTxt.textContent = `SOCKET: ${socketOn ? 'ON' : 'OFF'}`;
+  sound.click();
+  updateSystemState();
+}
+
+function togglePlug() {
+  sound.init();
+  if (socketOn) {
+    setStatus('Safety rule: Switch OFF the socket switch before inserting or removing the plug!', true);
+    sound.error();
+    return;
+  }
+  pluggedIn = !pluggedIn;
+  const btn = $('btn-plug');
+  const unit = $('plug-unit');
+  const pins = $('plug-pins');
+  const cord = $('cord-path');
+
+  if (btn) {
+    btn.textContent = pluggedIn ? 'REMOVE PLUG' : 'INSERT PLUG';
+    btn.classList.toggle('plugged', pluggedIn);
+  }
+  if (unit) {
+    unit.style.transform = pluggedIn ? 'translate(60px, -230px)' : 'translate(0px, 0px)';
+  }
+  if (pins) {
+    pins.classList.toggle('hidden', pluggedIn);
+  }
+  if (cord) {
+    cord.setAttribute('d', pluggedIn ? 'M 0 60 H 40 V -170 H 130' : 'M 0 60 H 50 V 60 H 90');
+  }
+
+  sound.snap();
+  setStatus(pluggedIn ? 'Plug inserted into socket.' : 'Plug removed from socket.');
+  updateSystemState();
+}
+
+function changeLamps(delta) {
+  sound.init();
+  if (socketOn) {
+    setStatus('Safety rule: Switch OFF the socket before changing the number of lamps.', true);
+    sound.error();
+    return;
+  }
+  lampCount = Math.max(1, Math.min(3, lampCount + delta));
+  if ($('load-title')) $('load-title').textContent = `READY-WIRED LOAD • ${lampCount} × 18 W = ${lampCount * 18} W`;
+  if ($('lamp-count-text')) $('lamp-count-text').textContent = `${lampCount} LAMP${lampCount > 1 ? 'S' : ''} (${lampCount * 18} W)`;
+
+  for (let i = 1; i <= 3; i++) {
+    const el = $('tube-' + i);
+    if (el) el.classList.toggle('hidden', i > lampCount);
+  }
+  sound.click();
+  updateSystemState();
+}
+
+function toggleSun() {
+  sunOn = !sunOn;
+  const btn = $('btn-sun-toggle');
+  if (btn) {
+    btn.textContent = `☀️ Sun: ${sunOn ? 'ON' : 'OFF'}`;
+    btn.classList.toggle('active', sunOn);
+  }
+  sound.click();
+  updateSystemState();
+}
+
+function refillBattery() {
+  energy = 512.0;
+  sound.success();
+  setStatus('Battery reset to 80% (512 Wh).');
+  updateSystemState();
+}
+
+// --- Live Physical Simulation Engine ---
+function updateSystemState() {
+  const valid = isWiringValid();
+  const isOperating = valid && switches.battM && switches.load && inverterOn && pluggedIn && socketOn && energy > 0;
+
+  const solarGen = valid && switches.pvM && switches.battM && sunOn ? 128.0 : 0.0;
+  const inverterDraw = valid && switches.battM && inverterOn && energy > 0
+    ? (isOperating ? (lampCount * 18.0) / 0.9 : 0.0) + 2.0
+    : 0.0;
+
+  const netWatts = solarGen - inverterDraw;
+
+  if ($('pv-watts-text')) $('pv-watts-text').textContent = `${solarGen.toFixed(0)} W`;
+  if ($('cc-led-pv')) $('cc-led-pv').classList.toggle('on', solarGen > 0);
+  if ($('cc-led-bat')) $('cc-led-bat').classList.toggle('on', valid && switches.battM);
+  if ($('cc-status-text')) $('cc-status-text').textContent = solarGen > 0 ? 'CHARGING' : (valid && switches.battM ? 'STANDBY' : 'OFF');
+  if ($('inv-led')) $('inv-led').classList.toggle('lit', inverterOn && valid && switches.battM && energy > 0);
+
+  const pct = Math.max(0, Math.min(100, (energy / 640.0) * 100));
+  if ($('bat-pct')) $('bat-pct').textContent = pct.toFixed(2) + '%';
+  if ($('header-batt-pct')) $('header-batt-pct').textContent = pct.toFixed(0) + '%';
+  if ($('bat-fill')) $('bat-fill').style.width = pct + '%';
+  if ($('bat-wh')) $('bat-wh').textContent = `${energy.toFixed(1)} / 640 Wh`;
+  if ($('bat-net')) $('bat-net').textContent = `${netWatts >= 0 ? '+' : ''}${netWatts.toFixed(1)} W`;
+
+  let stateLabel = 'IDLE';
+  if (energy >= 639.9 && netWatts >= 0) stateLabel = 'FULL';
+  else if (netWatts > 0) stateLabel = 'CHARGING';
+  else if (netWatts < 0) stateLabel = 'DISCHARGING';
+  if ($('bat-state')) $('bat-state').textContent = stateLabel;
+
+  let etaStr = 'Time remaining: —';
+  if (netWatts > 0 && energy < 640) {
+    const mins = Math.ceil(((640 - energy) / netWatts) * 60);
+    etaStr = `Time to full: ${Math.floor(mins / 60)}h ${mins % 60}m`;
+  } else if (netWatts < 0 && energy > 0) {
+    const mins = Math.floor((energy / -netWatts) * 60);
+    etaStr = `Est. runtime: ${Math.floor(mins / 60)}h ${mins % 60}m`;
+  } else if (energy >= 639.9) {
+    etaStr = 'Fully Charged';
+  }
+  if ($('bat-eta')) $('bat-eta').textContent = etaStr;
+
+  for (let i = 1; i <= 3; i++) {
+    const tube = $('tube-' + i);
+    if (tube) tube.classList.toggle('lit', isOperating);
+  }
+
+  return { solarGen, inverterDraw, isOperating };
+}
+
+// --- Simulation Loop ---
+function advanceTick() {
+  const now = Date.now();
+  const dt = Math.max(0, (now - lastTick) / 1000);
+  lastTick = now;
+
+  const sim = updateSystemState();
+  const netRate = sim.solarGen - sim.inverterDraw;
+  energy = Math.max(0, Math.min(640, energy + (netRate * dt * simSpeed) / 3600));
+
+  updateSystemState();
+}
+setInterval(advanceTick, 250);
+
+// --- Wire Rendering ---
+function renderWires() {
+  const g = $('wires-group');
+  if (!g) return;
+  g.innerHTML = '';
+
+  const valid = isWiringValid();
+  const isOperating = valid && switches.battM && switches.load && inverterOn && pluggedIn && socketOn && energy > 0;
+
+  wires.forEach((w, i) => {
+    const p1 = getTerminalCenter(w.a);
+    const p2 = getTerminalCenter(w.b);
+    if (!p1 || !p2) return;
 
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
-    const sag = Math.min(Math.hypot(dx, dy) * 0.18, 45);
-
+    const dist = Math.hypot(dx, dy);
+    const sag = Math.min(dist * 0.16, 40);
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2 + sag;
 
-    this.tempWire.setAttribute('d', `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`);
-  }
+    const pathD = `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`;
 
-  cancelDraftWire() {
-    if (this.activeStartTerminal) {
-      this.activeStartTerminal.classList.remove('active-src');
-      this.activeStartTerminal = null;
-    }
-    this.tempWire.style.display = 'none';
-    this.isMouseDownOnTerminal = false;
-    this.statusMsg.textContent = 'Click a terminal to start wire, then click destination terminal.';
-  }
+    const wireG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    wireG.setAttribute('class', `wire-path ${selectedWireIndex === i ? 'selected' : ''} ${badWires.has(i) ? 'bad' : ''}`);
 
-  completeWire(fromTerm, toTerm) {
-    const fromId = fromTerm.dataset.id;
-    const toId = toTerm.dataset.id;
+    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    glow.setAttribute('d', pathD);
+    glow.setAttribute('class', 'wire-glow');
+    wireG.appendChild(glow);
 
-    // Check if wire already exists
-    const exists = this.wires.some(w => (w.from === fromId && w.to === toId) || (w.from === toId && w.to === fromId));
-    if (exists) {
-      this.cancelDraftWire();
-      this.statusMsg.textContent = 'A wire is already connected between these terminals!';
-      return;
-    }
+    const core = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    core.setAttribute('d', pathD);
+    const colorHex = w.color === 'red' ? '#df292c' : w.color === 'black' ? '#181b20' : '#148746';
+    core.setAttribute('stroke', colorHex);
+    core.setAttribute('class', `wire-core ${w.color === 'earth' ? 'earth' : ''}`);
+    wireG.appendChild(core);
 
-    const wire = {
-      id: `w_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-      from: fromId,
-      to: toId,
-      color: this.currentColor
-    };
-
-    this.wires.push(wire);
-    this.selectedWireId = wire.id;
-    this.cancelDraftWire();
-
-    TK_SOUND.playWireSnap();
-    this.renderWires();
-    this.updateTerminalVisuals();
-
-    this.statusMsg.textContent = `Connected ${fromTerm.title} to ${toTerm.title}.`;
-    this.evaluateCircuit();
-    if (this.isGuideActive) this.checkGuideStepProgress();
-  }
-
-  deleteSelectedWire() {
-    if (!this.selectedWireId) return;
-    this.wires = this.wires.filter(w => w.id !== this.selectedWireId);
-    this.selectedWireId = null;
-    TK_SOUND.playDelete();
-    this.renderWires();
-    this.updateTerminalVisuals();
-    this.statusMsg.textContent = 'Wire deleted.';
-    this.evaluateCircuit();
-    if (this.isGuideActive) this.renderGuideStep();
-  }
-
-  updateTerminalVisuals() {
-    document.querySelectorAll('.tk-terminal').forEach(t => {
-      const id = t.dataset.id;
-      const isConnected = this.wires.some(w => w.from === id || w.to === id);
-      t.classList.toggle('has-wire', isConnected);
-    });
-  }
-
-  renderWires() {
-    this.wiresGroup.innerHTML = '';
-
-    const faultWireIds = new Set();
-    this.activeFaults.forEach(f => f.wires.forEach(id => faultWireIds.add(id)));
-
-    this.wires.forEach(w => {
-      const t1 = document.querySelector(`.tk-terminal[data-id="${w.from}"]`);
-      const t2 = document.querySelector(`.tk-terminal[data-id="${w.to}"]`);
-      if (!t1 || !t2) return;
-
-      const p1 = this.getTerminalCenter(t1);
-      const p2 = this.getTerminalCenter(t2);
-
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const sag = Math.min(Math.hypot(dx, dy) * 0.18, 45);
-
-      const midX = (p1.x + p2.x) / 2;
-      const midY = (p1.y + p2.y) / 2 + sag;
-
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`);
-
-      const isFault = faultWireIds.has(w.id);
-      path.setAttribute('class', `tk-wire ${w.id === this.selectedWireId ? 'selected' : ''} ${isFault ? 'short-circuit-wire' : ''}`);
-      path.setAttribute('stroke', isFault ? '#ff1e00' : w.color);
-      path.setAttribute('id', w.id);
-
-      // Click wire to select it
-      path.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.selectedWireId = w.id;
-        this.currentColor = w.color;
-        this.colorSelect.value = w.color;
-        this.colorSwatch.style.background = w.color;
-        this.renderWires();
-        this.statusMsg.textContent = 'Wire selected. Press Del or click Trash to remove.';
-      });
-
-      this.wiresGroup.appendChild(path);
-    });
-  }
-
-  /* ================= DRAGGABLE COMPONENTS ON WORKPLANE ================= */
-  setupComponentDragging() {
-    document.querySelectorAll('.tk-component').forEach(cmp => {
-      cmp.addEventListener('mousedown', (e) => {
-        if (e.target.closest('.tk-terminal') || e.target.closest('input')) return;
-        this.draggedComponent = cmp;
-        const rect = cmp.getBoundingClientRect();
-        this.dragOffset = {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        };
-      });
-    });
-
-    window.addEventListener('mousemove', (e) => {
-      if (!this.draggedComponent) return;
-      const wpRect = this.workplane.getBoundingClientRect();
-      let left = e.clientX - wpRect.left - this.dragOffset.x;
-      let top = e.clientY - wpRect.top - this.dragOffset.y;
-
-      left = Math.max(10, Math.min(wpRect.width - 240, left));
-      top = Math.max(10, Math.min(wpRect.height - 180, top));
-
-      this.draggedComponent.style.left = `${left}px`;
-      this.draggedComponent.style.top = `${top}px`;
-
-      this.renderWires();
-      if (this.activeStartTerminal) this.updateDraftWire();
-      if (this.isGuideActive) this.updateGuideTargetHighlights();
-    });
-
-    window.addEventListener('mouseup', () => {
-      this.draggedComponent = null;
-    });
-  }
-
-  /* ================= DEMO AUTO-WIRE REFERENCE SYSTEM ================= */
-  autoConnectFullSystem() {
-    this.wires = [];
-    this.selectedWireId = null;
-    this.activeFaults = [];
-    this.batteryPct = 80;
-
-    const connections = [
-      // Solar Panel -> Controller PV
-      { from: 'solar_pos', to: 'cc_pv_pos', color: '#ef4444' },
-      { from: 'solar_neg', to: 'cc_pv_neg', color: '#1e293b' },
-      // Battery -> Controller BATT
-      { from: 'batt_pos', to: 'cc_batt_pos', color: '#ef4444' },
-      { from: 'batt_neg', to: 'cc_batt_neg', color: '#1e293b' },
-      // Controller DC Load -> 12V DC Bulb
-      { from: 'cc_load_pos', to: 'dcload_pos', color: '#ef4444' },
-      { from: 'cc_load_neg', to: 'dcload_neg', color: '#1e293b' },
-      // Battery -> Inverter DC IN
-      { from: 'batt_pos', to: 'inv_dc_pos', color: '#ef4444' },
-      { from: 'batt_neg', to: 'inv_dc_neg', color: '#1e293b' },
-      // Inverter AC Output -> AC Fan
-      { from: 'inv_ac_live', to: 'acload_live', color: '#f59e0b' },
-      { from: 'inv_ac_neu', to: 'acload_neu', color: '#0284c7' }
-    ];
-
-    connections.forEach((c, idx) => {
-      this.wires.push({
-        id: `demo_${idx}`,
-        from: c.from,
-        to: c.to,
-        color: c.color
-      });
-    });
-
-    TK_SOUND.playWireSnap();
-    this.renderWires();
-    this.updateTerminalVisuals();
-    this.statusMsg.textContent = 'Auto-connected clean reference circuit! Click "Start Simulation" to run.';
-
-    this.evaluateCircuit();
-    if (this.isGuideActive) {
-      this.currentGuideStepIndex = GUIDE_STEPS.length - 1;
-      this.renderGuideStep();
-    }
-  }
-
-  /* ================= DEMO SHORT CIRCUIT / WRONG WIRE TEST ================= */
-  autoConnectFaultySystem() {
-    this.wires = [];
-    this.selectedWireId = null;
-
-    // Connect standard parts plus a deliberate wrong reverse-polarity & short circuit connection
-    const connections = [
-      // Solar Panel -> Controller PV (CORRECT)
-      { from: 'solar_pos', to: 'cc_pv_pos', color: '#ef4444' },
-      { from: 'solar_neg', to: 'cc_pv_neg', color: '#1e293b' },
-      // Battery Pos wired directly to Battery Neg (DEAD SHORT CIRCUIT!)
-      { from: 'batt_pos', to: 'batt_neg', color: '#ef4444' }
-    ];
-
-    connections.forEach((c, idx) => {
-      this.wires.push({
-        id: `fault_demo_${idx}`,
-        from: c.from,
-        to: c.to,
-        color: c.color
-      });
-    });
-
-    TK_SOUND.playWireSnap();
-    this.renderWires();
-    this.updateTerminalVisuals();
-
-    // Start simulation automatically so user immediately experiences the short circuit
-    if (!this.isSimulating) {
-      this.toggleSimulation();
-    } else {
-      this.evaluateCircuit();
-    }
-  }
-
-  /* ================= ONE-CLICK FIX FOR SHORTED WIRES ================= */
-  fixActiveFault() {
-    if (!this.activeFaults.length) return;
-    const fault = this.activeFaults[0];
-    fault.wires.forEach(wireId => {
-      this.wires = this.wires.filter(w => w.id !== wireId);
-    });
-
-    TK_SOUND.playDelete();
-    this.activeFaults = [];
-    this.sparkBubble.style.display = 'none';
-    this.sparkEffects.innerHTML = '';
-    this.smokeEffects.innerHTML = '';
-    this.renderWires();
-    this.updateTerminalVisuals();
-    this.statusMsg.textContent = 'Faulty wire removed! Circuit restored to safe state.';
-    this.evaluateCircuit();
-  }
-
-  /* ================= FAULT & SHORT CIRCUIT DETECTION ENGINE ================= */
-  detectCircuitFaults() {
-    const faults = [];
-    const getWire = (a, b) => this.wires.find(w => (w.from === a && w.to === b) || (w.from === b && w.to === a));
-
-    // 1. Direct Dead Shorts (+ to - on same device or terminal pair)
-    const deadShorts = [
-      { a: 'batt_pos', b: 'batt_neg', title: 'Dead Short Circuit: Battery Terminals Bridged!', desc: 'Extreme current! Direct (+) to (-) battery short causes rapid discharge, thermal runaway, and fire hazard!' },
-      { a: 'solar_pos', b: 'solar_neg', title: 'Direct Short Circuit: Solar Panel (+) to (-)', desc: 'Solar panel output is bridged together. Panel voltage collapses to 0V!' },
-      { a: 'inv_ac_live', b: 'inv_ac_neu', title: 'Mains Short Circuit: 230V AC Live to Neutral!', desc: 'Dangerous 230V AC arc flash! Inverter overload circuit breaker tripped immediately.' },
-      { a: 'inv_dc_pos', b: 'inv_dc_neg', title: 'Short Circuit: Inverter DC Input Terminals Bridged!', desc: 'Inverter DC input is dead-shorted together.' },
-      { a: 'cc_pv_pos', b: 'cc_pv_neg', title: 'Short Circuit: Controller PV Terminals Bridged!', desc: 'Charge controller PV input terminals are directly bridged.' },
-      { a: 'cc_batt_pos', b: 'cc_batt_neg', title: 'Short Circuit: Controller Battery Terminals Bridged!', desc: 'Charge controller battery terminals are directly bridged.' },
-      { a: 'cc_load_pos', b: 'cc_load_neg', title: 'Short Circuit: Controller DC Load Terminals Bridged!', desc: 'DC Load output terminals are shorted together.' },
-      { a: 'dcload_pos', b: 'dcload_neg', title: 'Short Circuit: 12V Bulb Terminals Bridged Together!', desc: 'DC Bulb terminals are bridged directly together.' },
-      { a: 'acload_live', b: 'acload_neu', title: 'Short Circuit: AC Fan Terminals Bridged Together!', desc: 'AC Fan terminals are bridged directly together.' }
-    ];
-
-    for (const s of deadShorts) {
-      const w = getWire(s.a, s.b);
-      if (w) {
-        faults.push({
-          type: 'dead_short',
-          title: s.title,
-          desc: s.desc,
-          terminals: [s.a, s.b],
-          wires: [w.id]
-        });
-      }
+    if (isOperating) {
+      const energyPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      energyPath.setAttribute('d', pathD);
+      energyPath.setAttribute('fill', 'none');
+      energyPath.setAttribute('stroke', '#ffffff');
+      energyPath.setAttribute('stroke-width', '1.5');
+      energyPath.setAttribute('class', 'wire-energy');
+      wireG.appendChild(energyPath);
     }
 
-    // 2. High Voltage 230V AC to 12V DC Catastrophic Cross-Connections
-    const acTerms = ['inv_ac_live', 'inv_ac_neu', 'acload_live', 'acload_neu'];
-    const dcTerms = ['solar_pos', 'solar_neg', 'batt_pos', 'batt_neg', 'cc_pv_pos', 'cc_pv_neg', 'cc_batt_pos', 'cc_batt_neg', 'cc_load_pos', 'cc_load_neg', 'inv_dc_pos', 'inv_dc_neg', 'dcload_pos', 'dcload_neg'];
-
-    for (const wire of this.wires) {
-      const isFromAC = acTerms.includes(wire.from);
-      const isToAC = acTerms.includes(wire.to);
-      const isFromDC = dcTerms.includes(wire.from);
-      const isToDC = dcTerms.includes(wire.to);
-
-      if ((isFromAC && isToDC) || (isFromDC && isToAC)) {
-        if (wire.from.startsWith('dcload_') || wire.to.startsWith('dcload_')) {
-          faults.push({
-            type: 'overvoltage',
-            title: '💥 Overvoltage Blowout: 12V Bulb on 230V AC!',
-            desc: 'Connecting a 12V DC lamp to 230V AC mains output instantly explodes the bulb filament!',
-            terminals: [wire.from, wire.to],
-            wires: [wire.id]
-          });
-        } else {
-          faults.push({
-            type: 'ac_dc_conflict',
-            title: '💥 Dangerous AC-to-DC Cross-Wire Fault!',
-            desc: 'Catastrophic hazard! Feeding 230V AC mains into low-voltage 12V DC circuits destroys electronics and poses severe shock danger.',
-            terminals: [wire.from, wire.to],
-            wires: [wire.id]
-          });
-        }
-      }
-    }
-
-    // 3. Reverse Polarity Connections ("when you connect the wrong one")
-    const polarityChecks = [
-      // Solar reversed into CC
-      { a: 'solar_pos', b: 'cc_pv_neg', title: '💥 Reverse Polarity: Solar (+) wired to Controller PV (-)', desc: 'Solar array positive is connected to negative input! Charge controller input reverse-polarity protection engaged.' },
-      { a: 'solar_neg', b: 'cc_pv_pos', title: '💥 Reverse Polarity: Solar (-) wired to Controller PV (+)', desc: 'Solar array negative connected to positive terminal. System disabled.' },
-      // Battery reversed into CC
-      { a: 'batt_pos', b: 'cc_batt_neg', title: '💥 Reverse Polarity: Battery (+) wired to Controller (-)', desc: 'Battery polarity is inverted! Dangerous reverse current flow risks blowing controller MOSFETs.' },
-      { a: 'batt_neg', b: 'cc_batt_pos', title: '💥 Reverse Polarity: Battery (-) wired to Controller (+)', desc: 'Battery negative connected to positive terminal! Polarity mismatch.' },
-      // Battery reversed into Inverter DC
-      { a: 'batt_pos', b: 'inv_dc_neg', title: '💥 Reverse Polarity: Battery (+) wired to Inverter DC (-)', desc: 'Inverting DC polarity into inverter dead-shorts internal freewheeling diodes! Heavy spark and blown fuse!' },
-      { a: 'batt_neg', b: 'inv_dc_pos', title: '💥 Reverse Polarity: Battery (-) wired to Inverter DC (+)', desc: 'Inverter DC negative connected to positive input! Reverse voltage hazard.' },
-      // CC to Inverter reversed
-      { a: 'cc_batt_pos', b: 'inv_dc_neg', title: '💥 Reverse Polarity: Controller (+) to Inverter DC (-)', desc: 'Inverter input polarity is reversed from controller.' },
-      { a: 'cc_batt_neg', b: 'inv_dc_pos', title: '💥 Reverse Polarity: Controller (-) to Inverter DC (+)', desc: 'Inverter input polarity is reversed from controller.' },
-      // DC Load reversed
-      { a: 'cc_load_pos', b: 'dcload_neg', title: '⚠️ Reverse Polarity: DC Load (+) to (-)', desc: 'DC Bulb wired in reverse polarity.' },
-      { a: 'cc_load_neg', b: 'dcload_pos', title: '⚠️ Reverse Polarity: DC Load (-) to (+)', desc: 'DC Bulb wired in reverse polarity.' }
-    ];
-
-    for (const p of polarityChecks) {
-      const w = getWire(p.a, p.b);
-      if (w) {
-        faults.push({
-          type: 'reverse_polarity',
-          title: p.title,
-          desc: p.desc,
-          terminals: [p.a, p.b],
-          wires: [w.id]
-        });
-      }
-    }
-
-    // 4. DC direct to 230V AC Motor
-    for (const wire of this.wires) {
-      const isACFan = wire.from.startsWith('acload_') || wire.to.startsWith('acload_');
-      const isDirectDC = wire.from.startsWith('solar_') || wire.to.startsWith('solar_') ||
-                         wire.from.startsWith('batt_') || wire.to.startsWith('batt_') ||
-                         wire.from.startsWith('cc_') || wire.to.startsWith('cc_');
-      if (isACFan && isDirectDC) {
-        faults.push({
-          type: 'dc_to_ac_motor',
-          title: '⚠️ Motor Incompatibility: 230V AC Fan on 12V DC',
-          desc: 'The 230V AC induction fan cannot run directly on 12V DC. It requires an inverter to supply 230V AC.',
-          terminals: [wire.from, wire.to],
-          wires: [wire.id]
-        });
-      }
-    }
-
-    return faults;
-  }
-
-  /* ================= SIMULATION & LOGIC ================= */
-  toggleSimulation() {
-    this.isSimulating = !this.isSimulating;
-
-    if (this.isSimulating) {
-      TK_SOUND.playSimStart();
-      this.btnSim.className = 'tk-sim-btn running';
-      this.btnSim.innerHTML = '<span class="sim-icon">■</span><span class="sim-label">Stop Simulation</span>';
-      this.statusMsg.textContent = 'Simulation running... Inspecting circuit connections.';
-      this.evaluateCircuit();
-    } else {
-      this.btnSim.className = 'tk-sim-btn start';
-      this.btnSim.innerHTML = '<span class="sim-icon">▶</span><span class="sim-label">Start Simulation</span>';
-      this.statusMsg.textContent = 'Simulation stopped.';
-      this.activeFaults = [];
-      this.sparkBubble.style.display = 'none';
-      this.sparkEffects.innerHTML = '';
-      this.smokeEffects.innerHTML = '';
-      this.resetVisualOutputs();
-      this.updateBatteryUI();
-    }
-  }
-
-  isWired(idA, idB) {
-    return this.wires.some(w => (w.from === idA && w.to === idB) || (w.from === idB && w.to === idA));
-  }
-
-  evaluateCircuit() {
-    // Detect faults
-    this.activeFaults = this.detectCircuitFaults();
-
-    if (this.activeFaults.length > 0) {
-      // FAULT DETECTED!
-      const primaryFault = this.activeFaults[0];
-      TK_SOUND.playSpark();
-
-      // Show enhanced fault bubble
-      this.sparkBubble.style.display = 'block';
-      if (this.sparkTitle) this.sparkTitle.textContent = primaryFault.title;
-      if (this.sparkDesc) this.sparkDesc.textContent = primaryFault.desc;
-
-      this.statusMsg.textContent = `CRITICAL FAULT: ${primaryFault.title}`;
-
-      // Mark faulty wire
-      this.renderWires();
-      this.resetVisualOutputs();
-
-      // If battery is involved in short, update battery status
-      const hasBattFault = primaryFault.terminals.some(t => t.startsWith('batt_'));
-      if (hasBattFault) {
-        this.batteryState = 'shorted';
-      }
-
-      this.updateBatteryUI();
-      return;
-    } else {
-      // Clear faults
-      this.sparkBubble.style.display = 'none';
-      this.sparkEffects.innerHTML = '';
-      this.smokeEffects.innerHTML = '';
-      this.renderWires();
-    }
-
-    if (!this.isSimulating) {
-      this.resetVisualOutputs();
-      this.updateBatteryUI();
-      return;
-    }
-
-    // Normal circuit connections check
-    const hasSolarToCC = this.isWired('solar_pos', 'cc_pv_pos') && this.isWired('solar_neg', 'cc_pv_neg');
-    const hasBattToCC = this.isWired('batt_pos', 'cc_batt_pos') && this.isWired('batt_neg', 'cc_batt_neg');
-    const hasDCLoad = (this.isWired('cc_load_pos', 'dcload_pos') && this.isWired('cc_load_neg', 'dcload_neg')) ||
-                      (this.isWired('batt_pos', 'dcload_pos') && this.isWired('batt_neg', 'dcload_neg'));
-
-    const hasBattToInv = (this.isWired('batt_pos', 'inv_dc_pos') && this.isWired('batt_neg', 'inv_dc_neg')) ||
-                         (this.isWired('cc_batt_pos', 'inv_dc_pos') && this.isWired('cc_batt_neg', 'inv_dc_neg'));
-    const hasACLoad = this.isWired('inv_ac_live', 'acload_live') && this.isWired('inv_ac_neu', 'acload_neu');
-
-    const isSolarActive = hasSolarToCC && this.sunlight > 0;
-    const hasStoredPower = this.batteryPct > 0;
-    const hasDCBusPower = (hasBattToCC && hasStoredPower) || isSolarActive;
-
-    // Check if battery is being charged
-    const isChargingBattery = hasSolarToCC && hasBattToCC && this.sunlight > 10 && this.batteryPct < 100;
-
-    // 1. Controller LED & Screen
-    if (hasBattToCC || isSolarActive) {
-      this.ccLed.className = 'lcd-led on';
-    } else {
-      this.ccLed.className = 'lcd-led';
-    }
-
-    // 2. DC Bulb (Requires power from battery or solar)
-    const bulbGlass = document.getElementById('dc-bulb-glass');
-    const bulbActive = hasDCLoad && hasDCBusPower;
-    if (bulbActive) {
-      bulbGlass.classList.add('lit');
-    } else {
-      bulbGlass.classList.remove('lit');
-    }
-
-    // 3. Inverter & Fan (Requires DC power from battery or CC)
-    const invFan = document.getElementById('inv-fan');
-    const invPowered = hasBattToInv && (hasStoredPower || isSolarActive);
-    if (invPowered) {
-      invFan.classList.add('spin');
-    } else {
-      invFan.classList.remove('spin');
-    }
-
-    // 4. AC Fan Load
-    const acFan = document.getElementById('ac-fan-housing');
-    const acFanActive = invPowered && hasACLoad;
-    if (acFanActive) {
-      acFan.classList.add('spinning');
-    } else {
-      acFan.classList.remove('spinning');
-    }
-
-    // Determine Battery State
-    if (isChargingBattery && !bulbActive && !acFanActive) {
-      this.batteryState = 'charging';
-    } else if (isChargingBattery && (bulbActive || acFanActive)) {
-      this.batteryState = 'charging';
-    } else if (hasStoredPower && (bulbActive || acFanActive)) {
-      this.batteryState = 'discharging';
-    } else if (this.batteryPct <= 0) {
-      this.batteryState = 'empty';
-    } else {
-      this.batteryState = 'idle';
-    }
-
-    this.updateBatteryUI();
-
-    // Status Summary Text
-    let okCount = 0;
-    if (hasSolarToCC) okCount++;
-    if (hasBattToCC) okCount++;
-    if (hasDCLoad) okCount++;
-    if (hasBattToInv) okCount++;
-    if (hasACLoad) okCount++;
-
-    if (this.batteryPct <= 0 && !isSolarActive && (hasDCLoad || hasACLoad)) {
-      this.statusMsg.textContent = '⚠️ Low Battery Disconnect: Battery is 0% depleted! Increase sunlight to recharge.';
-    } else if (okCount === 5) {
-      const chargeText = isChargingBattery ? `• Solar charging (+${((this.sunlight / 100) * 4.5).toFixed(1)}A)` : '';
-      this.statusMsg.textContent = `✔ Complete PV System Active: DC Bulb ON, Inverter powering 230V Fan! Battery: ${Math.round(this.batteryPct)}% ${chargeText}`;
-    } else {
-      this.statusMsg.textContent = `Simulation running. ${okCount}/5 sub-circuits active. Battery: ${Math.round(this.batteryPct)}% (${this.batteryVolts.toFixed(1)}V)`;
-    }
-  }
-
-  /* ================= BATTERY METERS & UI REFRESH ================= */
-  updateBatteryUI() {
-    const pct = Math.max(0, Math.min(100, this.batteryPct));
-
-    // Voltage calculation based on state of charge & state
-    if (this.batteryState === 'shorted') {
-      this.batteryVolts = 0.0;
-    } else if (this.batteryState === 'charging') {
-      this.batteryVolts = 13.6 + (pct / 100) * 0.8;
-    } else if (pct <= 0) {
-      this.batteryVolts = 10.5;
-    } else {
-      this.batteryVolts = 11.6 + (pct / 100) * 1.2;
-    }
-
-    // Battery meter bar width and color class
-    if (this.battMeterBar) {
-      this.battMeterBar.style.width = `${pct}%`;
-      this.battMeterBar.className = 'batt-meter-bar';
-      if (pct <= 0) {
-        this.battMeterBar.classList.add('empty');
-      } else if (pct <= 20) {
-        this.battMeterBar.classList.add('low');
-      } else if (pct <= 50) {
-        this.battMeterBar.classList.add('med');
-      }
-    }
-
-    // Battery values text
-    if (this.battPctText) this.battPctText.textContent = `${Math.round(pct)}%`;
-    if (this.battVoltsText) this.battVoltsText.textContent = `${this.batteryVolts.toFixed(1)}V`;
-    if (this.battSlider) this.battSlider.value = Math.round(pct);
-    if (this.battSliderVal) this.battSliderVal.textContent = `${Math.round(pct)}%`;
-
-    // Battery badge status
-    if (this.battBadge) {
-      this.battBadge.className = 'batt-badge';
-      if (this.batteryState === 'shorted') {
-        this.battBadge.classList.add('shorted');
-        this.battBadgeIcon.textContent = '💥';
-        this.battBadgeText.textContent = 'SHORT CIRCUIT!';
-      } else if (this.batteryState === 'charging') {
-        this.battBadge.classList.add('charging');
-        this.battBadgeIcon.textContent = '⚡';
-        const amps = ((this.sunlight / 100) * 4.8).toFixed(1);
-        this.battBadgeText.textContent = `Charging (+${amps}A)`;
-      } else if (this.batteryState === 'discharging') {
-        this.battBadge.classList.add('discharging');
-        this.battBadgeIcon.textContent = '🔻';
-        this.battBadgeText.textContent = 'Discharging (-6.5A)';
-      } else if (pct <= 0) {
-        this.battBadge.classList.add('depleted');
-        this.battBadgeIcon.textContent = '⚠️';
-        this.battBadgeText.textContent = 'Depleted (0%)';
-      } else if (pct >= 100) {
-        this.battBadgeIcon.textContent = '🔋';
-        this.battBadgeText.textContent = '100% Full (Float)';
-      } else {
-        this.battBadgeIcon.textContent = '⚡';
-        this.battBadgeText.textContent = 'Standby';
-      }
-    }
-
-    // Charge Controller LCD sync
-    if (this.ccLcdText) this.ccLcdText.textContent = `${this.batteryVolts.toFixed(1)}V`;
-    if (this.ccLcdPct) this.ccLcdPct.textContent = `${Math.round(pct)}%`;
-    if (this.ccLcdMode) {
-      if (this.batteryState === 'shorted') {
-        this.ccLcdMode.textContent = 'FAULT!';
-        if (this.ccLed) this.ccLed.className = 'lcd-led blink-red';
-      } else if (this.batteryState === 'charging') {
-        this.ccLcdMode.textContent = 'SOLAR CHG';
-      } else if (this.batteryState === 'discharging') {
-        this.ccLcdMode.textContent = 'BATT LOAD';
-      } else if (pct <= 0) {
-        this.ccLcdMode.textContent = 'LOW BATT';
-        if (this.ccLed) this.ccLed.className = 'lcd-led blink-red';
-      } else {
-        this.ccLcdMode.textContent = 'READY';
-      }
-    }
-  }
-
-  resetVisualOutputs() {
-    this.ccLed.className = 'lcd-led';
-    document.getElementById('dc-bulb-glass').classList.remove('lit');
-    document.getElementById('inv-fan').classList.remove('spin');
-    document.getElementById('ac-fan-housing').classList.remove('spinning');
-  }
-
-  /* ================= ANIMATION & PHYSICS SIMULATION LOOP ================= */
-  startAnimationLoop() {
-    let t = 0;
-    let lastSimTick = Date.now();
-
-    const loop = () => {
-      t += 0.02;
-      const now = Date.now();
-      const dt = (now - lastSimTick) / 1000;
-      lastSimTick = now;
-
-      // 1. Electron Flow Animation (Only runs when simulation is active and NO faults)
-      this.electronDots.innerHTML = '';
-      if (this.isSimulating && this.activeFaults.length === 0) {
-        this.wires.forEach(w => {
-          const pathEl = document.getElementById(w.id);
-          if (!pathEl) return;
-          const len = pathEl.getTotalLength();
-          if (len <= 0) return;
-
-          const pt = pathEl.getPointAtLength((t % 1.0) * len);
-          const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          dot.setAttribute('cx', pt.x);
-          dot.setAttribute('cy', pt.y);
-          dot.setAttribute('r', '3.5');
-          dot.setAttribute('fill', '#ffffff');
-          dot.setAttribute('stroke', w.color);
-          dot.setAttribute('stroke-width', '1.5');
-          dot.setAttribute('class', 'electron-particle');
-          this.electronDots.appendChild(dot);
-        });
-      }
-
-      // 2. Short Circuit Sparks & Smoke Particles Animation
-      if (this.activeFaults.length > 0) {
-        this.renderFaultVisuals();
-        TK_SOUND.playSpark();
-      } else {
-        this.sparkEffects.innerHTML = '';
-        this.smokeEffects.innerHTML = '';
-      }
-
-      // 3. Dynamic Battery Physics & Drain/Charge simulation over time
-      if (this.isSimulating) {
-        if (this.activeFaults.length > 0) {
-          // If battery shorted, drain rapidly!
-          const hasBattFault = this.activeFaults.some(f => f.terminals.some(term => term.startsWith('batt_')));
-          if (hasBattFault && this.batteryPct > 0) {
-            this.batteryPct = Math.max(0, this.batteryPct - 4.5 * dt);
-            this.updateBatteryUI();
-          }
-        } else {
-          // Normal charge & discharge balance
-          const hasSolarToCC = this.isWired('solar_pos', 'cc_pv_pos') && this.isWired('solar_neg', 'cc_pv_neg');
-          const hasBattToCC = this.isWired('batt_pos', 'cc_batt_pos') && this.isWired('batt_neg', 'cc_batt_neg');
-          const hasDCLoad = (this.isWired('cc_load_pos', 'dcload_pos') && this.isWired('cc_load_neg', 'dcload_neg')) ||
-                            (this.isWired('batt_pos', 'dcload_pos') && this.isWired('batt_neg', 'dcload_neg'));
-          const hasBattToInv = (this.isWired('batt_pos', 'inv_dc_pos') && this.isWired('batt_neg', 'inv_dc_neg')) ||
-                               (this.isWired('cc_batt_pos', 'inv_dc_pos') && this.isWired('cc_batt_neg', 'inv_dc_neg'));
-          const hasACLoad = this.isWired('inv_ac_live', 'acload_live') && this.isWired('inv_ac_neu', 'acload_neu');
-
-          let chargeRate = 0;
-          if (hasSolarToCC && hasBattToCC && this.sunlight > 0) {
-            chargeRate = (this.sunlight / 100) * 0.8; // Up to +0.8% per sec charging
-          }
-
-          let loadDrainRate = 0;
-          if (hasDCLoad && this.batteryPct > 0) {
-            loadDrainRate += 0.35; // DC bulb
-          }
-          if (hasBattToInv && hasACLoad && this.batteryPct > 0) {
-            loadDrainRate += 0.65; // AC Fan
-          }
-
-          const netChange = (chargeRate - loadDrainRate) * dt;
-          const oldPct = this.batteryPct;
-          this.batteryPct = Math.max(0, Math.min(100, this.batteryPct + netChange));
-
-          if (Math.abs(this.batteryPct - oldPct) > 0.05) {
-            this.updateBatteryUI();
-            if ((oldPct > 0 && this.batteryPct <= 0) || (oldPct < 100 && this.batteryPct >= 100)) {
-              this.evaluateCircuit();
-            }
-          }
-        }
-      }
-
-      requestAnimationFrame(loop);
-    };
-
-    requestAnimationFrame(loop);
-  }
-
-  /* ================= DYNAMIC SPARK & SMOKE GENERATION ================= */
-  renderFaultVisuals() {
-    this.sparkEffects.innerHTML = '';
-    this.smokeEffects.innerHTML = '';
-
-    this.activeFaults.forEach(fault => {
-      fault.terminals.forEach(termId => {
-        const term = document.querySelector(`.tk-terminal[data-id="${termId}"]`);
-        if (!term) return;
-        const pt = this.getTerminalCenter(term);
-
-        // Generate jagged electric spark lightning bolts
-        for (let i = 0; i < 4; i++) {
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 12 + Math.random() * 26;
-          const x2 = pt.x + Math.cos(angle) * dist;
-          const y2 = pt.y + Math.sin(angle) * dist;
-          const midX = (pt.x + x2) / 2 + (Math.random() - 0.5) * 16;
-          const midY = (pt.y + y2) / 2 + (Math.random() - 0.5) * 16;
-
-          const spark = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          spark.setAttribute('d', `M ${pt.x} ${pt.y} Q ${midX} ${midY} ${x2} ${y2}`);
-          spark.setAttribute('class', 'spark-zap-line');
-          this.sparkEffects.appendChild(spark);
-        }
-
-        // Generate spark star burst
-        const star = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        star.setAttribute('cx', pt.x + (Math.random() - 0.5) * 10);
-        star.setAttribute('cy', pt.y + (Math.random() - 0.5) * 10);
-        star.setAttribute('r', 2 + Math.random() * 4);
-        star.setAttribute('class', 'spark-star');
-        this.sparkEffects.appendChild(star);
-
-        // Generate rising smoke puff
-        const smoke = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        smoke.setAttribute('cx', pt.x + (Math.random() - 0.5) * 16);
-        smoke.setAttribute('cy', pt.y - 12 - Math.random() * 20);
-        smoke.setAttribute('r', 6 + Math.random() * 10);
-        smoke.setAttribute('class', 'smoke-cloud');
-        this.smokeEffects.appendChild(smoke);
-      });
-    });
-  }
-
-  /* ================= STEP-BY-STEP COMPONENT ATTACHING GUIDE ENGINE ================= */
-  setupGuideControls() {
-    if (!this.btnGuideToggle) return;
-
-    // Toggle button in header toolbar
-    this.btnGuideToggle.addEventListener('click', () => {
-      this.toggleGuide();
-    });
-
-    // Close / Turn Off button in guide panel
-    if (this.btnGuideClose) {
-      this.btnGuideClose.addEventListener('click', () => {
-        this.toggleGuide(false);
-      });
-    }
-
-    // Minimize / Expand button in guide panel
-    if (this.btnGuideMin) {
-      this.btnGuideMin.addEventListener('click', () => {
-        this.isGuideMinimized = !this.isGuideMinimized;
-        this.guidePanel.classList.toggle('minimized', this.isGuideMinimized);
-        this.btnGuideMin.textContent = this.isGuideMinimized ? '+' : '−';
-        this.btnGuideMin.title = this.isGuideMinimized ? 'Expand Guide' : 'Minimize Guide';
-      });
-    }
-
-    // Previous step button
-    if (this.btnGuidePrev) {
-      this.btnGuidePrev.addEventListener('click', () => {
-        if (this.currentGuideStepIndex > 0) {
-          this.currentGuideStepIndex--;
-          this.renderGuideStep();
-        }
-      });
-    }
-
-    // Next step button
-    if (this.btnGuideNext) {
-      this.btnGuideNext.addEventListener('click', () => {
-        if (this.currentGuideStepIndex < GUIDE_STEPS.length - 1) {
-          this.currentGuideStepIndex++;
-          this.renderGuideStep();
-        }
-      });
-    }
-
-    // Auto-Wire current step button
-    if (this.btnGuideAutowire) {
-      this.btnGuideAutowire.addEventListener('click', () => {
-        this.autoWireCurrentGuideStep();
-      });
-    }
-  }
-
-  setupGuideDragging() {
-    if (!this.guideHeader || !this.guidePanel) return;
-
-    this.guideHeader.addEventListener('mousedown', (e) => {
-      if (e.target.closest('button')) return;
-      this.guideDragData.isDragging = true;
-      this.guideDragData.startX = e.clientX;
-      this.guideDragData.startY = e.clientY;
-
-      const rect = this.guidePanel.getBoundingClientRect();
-      const wpRect = this.workplane.getBoundingClientRect();
-      this.guideDragData.startLeft = rect.left - wpRect.left;
-      this.guideDragData.startTop = rect.top - wpRect.top;
-      e.preventDefault();
-    });
-
-    window.addEventListener('mousemove', (e) => {
-      if (!this.guideDragData.isDragging) return;
-      const dx = e.clientX - this.guideDragData.startX;
-      const dy = e.clientY - this.guideDragData.startY;
-      const wpRect = this.workplane.getBoundingClientRect();
-
-      let newLeft = this.guideDragData.startLeft + dx;
-      let newTop = this.guideDragData.startTop + dy;
-
-      newLeft = Math.max(10, Math.min(wpRect.width - 320, newLeft));
-      newTop = Math.max(10, Math.min(wpRect.height - 80, newTop));
-
-      this.guidePanel.style.left = `${newLeft}px`;
-      this.guidePanel.style.top = `${newTop}px`;
-      this.guidePanel.style.right = 'auto';
-    });
-
-    window.addEventListener('mouseup', () => {
-      this.guideDragData.isDragging = false;
-    });
-  }
-
-  toggleGuide(forceState = null) {
-    this.isGuideActive = (forceState !== null) ? forceState : !this.isGuideActive;
-
-    if (this.isGuideActive) {
-      // Find first incomplete step, or start from current step
-      const incompleteIdx = GUIDE_STEPS.findIndex(step => {
-        if (!step.wires || step.wires.length === 0) return false;
-        return !step.wires.every(w => this.isWired(w.from, w.to));
-      });
-      if (incompleteIdx !== -1) {
-        this.currentGuideStepIndex = incompleteIdx;
-      }
-
-      this.guidePanel.style.display = 'block';
-      this.btnGuideToggle.classList.add('active');
-      this.guideBadgeStatus.className = 'guide-status-badge on';
-      this.guideBadgeStatus.textContent = 'ON';
-
-      this.renderGuideStep();
-      this.statusMsg.textContent = `📖 Guide ON: Follow Step ${this.currentGuideStepIndex + 1} to attach the components.`;
-    } else {
-      this.guidePanel.style.display = 'none';
-      this.btnGuideToggle.classList.remove('active');
-      this.guideBadgeStatus.className = 'guide-status-badge off';
-      this.guideBadgeStatus.textContent = 'OFF';
-
-      this.clearGuideTargetHighlights();
-      this.statusMsg.textContent = 'Step-by-Step Guide turned OFF. Free sandbox wiring mode active.';
-    }
-  }
-
-  clearGuideTargetHighlights() {
-    document.querySelectorAll('.tk-terminal').forEach(t => {
-      t.classList.remove('guide-target', 'guide-target-pos', 'guide-target-neg');
-    });
-    if (this.guideHintsGroup) {
-      this.guideHintsGroup.innerHTML = '';
-    }
-  }
-
-  renderGuideStep() {
-    if (!this.isGuideActive) return;
-
-    const step = GUIDE_STEPS[this.currentGuideStepIndex];
-    if (!step) return;
-
-    // Header & Tag
-    this.guideStepTag.textContent = step.badge;
-    this.guideStepTitle.textContent = step.title;
-    this.guideStepDesc.innerHTML = step.desc;
-    this.guideTipText.textContent = step.tip;
-
-    // Progress bar
-    const progressPct = ((this.currentGuideStepIndex + 1) / GUIDE_STEPS.length) * 100;
-    this.guideProgressBar.style.width = `${progressPct}%`;
-
-    // Navigation buttons
-    this.btnGuidePrev.disabled = (this.currentGuideStepIndex === 0);
-    this.btnGuideNext.disabled = (this.currentGuideStepIndex === GUIDE_STEPS.length - 1);
-
-    // Tasks checklist
-    this.guideTasks.innerHTML = '';
-    let allWiresConnected = true;
-
-    if (step.wires && step.wires.length > 0) {
-      this.btnGuideAutowire.style.display = 'inline-flex';
-
-      step.wires.forEach(w => {
-        const isDone = this.isWired(w.from, w.to);
-        if (!isDone) allWiresConnected = false;
-
-        const taskItem = document.createElement('div');
-        taskItem.className = `guide-task-item ${isDone ? 'done' : ''}`;
-
-        const checkSpan = document.createElement('span');
-        checkSpan.className = 'guide-task-check';
-        checkSpan.textContent = isDone ? '✔' : '○';
-
-        const colorDot = document.createElement('span');
-        colorDot.className = 'guide-task-wire-color';
-        colorDot.style.background = w.color;
-
-        const textSpan = document.createElement('span');
-        textSpan.className = 'guide-task-text';
-        textSpan.textContent = w.label;
-
-        taskItem.appendChild(checkSpan);
-        taskItem.appendChild(colorDot);
-        taskItem.appendChild(textSpan);
-        this.guideTasks.appendChild(taskItem);
-      });
-    } else {
-      // Final finished step
-      this.btnGuideAutowire.style.display = 'none';
-      const finishBanner = document.createElement('div');
-      finishBanner.className = 'guide-step-complete-banner';
-      finishBanner.innerHTML = '🎉 System fully connected! Click <strong>"Start Simulation"</strong> ▶ to test.';
-      this.guideTasks.appendChild(finishBanner);
-    }
-
-    // If all wires for this step are already done and not on the last step, show ready next indicator
-    if (allWiresConnected && !step.isFinished && step.wires && step.wires.length > 0) {
-      const banner = document.createElement('div');
-      banner.className = 'guide-step-complete-banner';
-      banner.textContent = '✔ Step connections complete! Click "Next ▶" or continue wiring.';
-      this.guideTasks.appendChild(banner);
-    }
-
-    this.updateGuideTargetHighlights();
-  }
-
-  updateGuideTargetHighlights() {
-    if (!this.isGuideActive) return;
-
-    this.clearGuideTargetHighlights();
-
-    const step = GUIDE_STEPS[this.currentGuideStepIndex];
-    if (!step || !step.wires || step.wires.length === 0) return;
-
-    step.wires.forEach(w => {
-      const isDone = this.isWired(w.from, w.to);
-      if (isDone) return; // Only highlight pending connections
-
-      const t1 = document.querySelector(`.tk-terminal[data-id="${w.from}"]`);
-      const t2 = document.querySelector(`.tk-terminal[data-id="${w.to}"]`);
-
-      if (t1) {
-        t1.classList.add('guide-target');
-        if (t1.dataset.pol === '+') t1.classList.add('guide-target-pos');
-        if (t1.dataset.pol === '-') t1.classList.add('guide-target-neg');
-      }
-      if (t2) {
-        t2.classList.add('guide-target');
-        if (t2.dataset.pol === '+') t2.classList.add('guide-target-pos');
-        if (t2.dataset.pol === '-') t2.classList.add('guide-target-neg');
-      }
-
-      // Draw SVG dashed guide hint curve
-      if (t1 && t2 && this.guideHintsGroup) {
-        const p1 = this.getTerminalCenter(t1);
-        const p2 = this.getTerminalCenter(t2);
-
-        const dx = p2.x - p1.x;
-        const dy = p2.y - p1.y;
-        const sag = Math.min(Math.hypot(dx, dy) * 0.18, 45);
-
-        const midX = (p1.x + p2.x) / 2;
-        const midY = (p1.y + p2.y) / 2 + sag;
-
-        const hintPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        hintPath.setAttribute('d', `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`);
-        hintPath.setAttribute('class', 'guide-hint-wire');
-        hintPath.setAttribute('stroke', w.color);
-        this.guideHintsGroup.appendChild(hintPath);
+    const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    hit.setAttribute('d', pathD);
+    hit.setAttribute('class', 'wire-hit');
+    hit.addEventListener('click', e => {
+      e.stopPropagation();
+      selectedWireIndex = (selectedWireIndex === i) ? null : i;
+      $('btn-delete').disabled = selectedWireIndex === null;
+      renderWires();
+      if (selectedWireIndex !== null) {
+        setStatus(`Wire selected: ${terminalNames[w.a] || w.a} ➔ ${terminalNames[w.b] || w.b}. Press "Delete Wire" to remove.`);
       }
     });
-  }
+    wireG.appendChild(hit);
 
-  checkGuideStepProgress() {
-    if (!this.isGuideActive) return;
+    g.appendChild(wireG);
+  });
 
-    const step = GUIDE_STEPS[this.currentGuideStepIndex];
-    if (!step || !step.wires || step.wires.length === 0) return;
-
-    const allDone = step.wires.every(w => this.isWired(w.from, w.to));
-
-    if (allDone) {
-      TK_SOUND.playStepComplete();
-      this.renderGuideStep();
-
-      // Auto-advance to next step after brief celebration delay
-      if (this.currentGuideStepIndex < GUIDE_STEPS.length - 1) {
-        setTimeout(() => {
-          if (this.isGuideActive) {
-            this.currentGuideStepIndex++;
-            this.renderGuideStep();
-          }
-        }, 900);
-      }
-    } else {
-      this.renderGuideStep();
-    }
-  }
-
-  autoWireCurrentGuideStep() {
-    const step = GUIDE_STEPS[this.currentGuideStepIndex];
-    if (!step || !step.wires || step.wires.length === 0) return;
-
-    let addedAny = false;
-    step.wires.forEach(w => {
-      const exists = this.isWired(w.from, w.to);
-      if (!exists) {
-        this.wires.push({
-          id: `w_guide_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-          from: w.from,
-          to: w.to,
-          color: w.color
-        });
-        addedAny = true;
-      }
-    });
-
-    if (addedAny) {
-      TK_SOUND.playWireSnap();
-      this.renderWires();
-      this.updateTerminalVisuals();
-      this.evaluateCircuit();
-      this.checkGuideStepProgress();
-    }
-  }
+  if ($('btn-delete')) $('btn-delete').disabled = selectedWireIndex === null;
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  window.tinkercad = new TinkercadCircuits();
-});
+// --- Terminal Highlight Rings ---
+function renderTerminalHighlights() {
+  terminalElements.forEach(t => {
+    t.classList.remove('guide-source', 'guide-dest', 'missing');
+  });
+
+  if (guidedMode && currentHint) {
+    const srcEl = terminalElements.get(currentHint[0]);
+    const dstEl = terminalElements.get(currentHint[1]);
+    if (srcEl) srcEl.classList.add('guide-source');
+    if (dstEl) dstEl.classList.add('guide-dest');
+  }
+
+  if (startTerminalId) {
+    const startEl = terminalElements.get(startTerminalId);
+    if (startEl) startEl.classList.add('guide-source');
+  }
+
+  missingTerminals.forEach(termId => {
+    const el = terminalElements.get(termId);
+    if (el) el.classList.add('missing');
+  });
+}
+
+function render() {
+  renderWires();
+  renderTerminalHighlights();
+}
+
+// --- Initialization ---
+function init() {
+  // Populate Terminal Map and Bind Listeners
+  document.querySelectorAll('.terminal').forEach(term => {
+    const termId = term.getAttribute('data-id');
+    terminalElements.set(termId, term);
+
+    term.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleTerminalClick(termId);
+    });
+
+    term.addEventListener('touchstart', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleTerminalClick(termId);
+    }, { passive: false });
+  });
+
+  // Draft Wire Tracking on Mouse Move
+  const workbench = $('workbench');
+  const draftWire = $('draft-wire');
+  if (workbench && draftWire) {
+    workbench.addEventListener('mousemove', e => {
+      if (!startTerminalId) {
+        draftWire.style.display = 'none';
+        return;
+      }
+      const p1 = getTerminalCenter(startTerminalId);
+      if (!p1) return;
+      const rView = workbench.getBoundingClientRect();
+      const p2 = {
+        x: e.clientX - rView.left,
+        y: e.clientY - rView.top
+      };
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const sag = Math.min(Math.hypot(dx, dy) * 0.16, 40);
+      const midX = (p1.x + p2.x) / 2;
+      const midY = (p1.y + p2.y) / 2 + sag;
+      draftWire.setAttribute('d', `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`);
+      draftWire.style.display = 'block';
+    });
+  }
+
+  // Toolbar Binds
+  $('btn-guide-toggle').addEventListener('click', toggleGuide);
+  $('btn-auto-step').addEventListener('click', autoWireStep);
+  $('btn-next-hint').addEventListener('click', nextHint);
+  $('btn-undo').addEventListener('click', undo);
+  $('btn-delete').addEventListener('click', removeSelectedWire);
+  $('btn-reset').addEventListener('click', resetAll);
+  $('btn-check').addEventListener('click', checkWiring);
+  $('btn-show-answer').addEventListener('click', () => $('answer-dialog').showModal());
+
+  $('btn-sun-toggle').addEventListener('click', toggleSun);
+  $('btn-batt-refill').addEventListener('click', refillBattery);
+  $('speed-select').addEventListener('change', e => {
+    simSpeed = Number(e.target.value) || 1;
+    sound.click();
+    updateSystemState();
+  });
+
+  // Keyboard Shortcuts
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      startTerminalId = null;
+      hideDraftWire();
+      renderTerminalHighlights();
+      setStatus('Selection cleared.');
+    } else if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (selectedWireIndex !== null) removeSelectedWire();
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      e.preventDefault();
+      undo();
+    }
+  });
+
+  window.addEventListener('resize', () => renderWires());
+
+  // Initial State Setup
+  updateGuide();
+  render();
+  updateSystemState();
+}
+
+window.addEventListener('DOMContentLoaded', init);

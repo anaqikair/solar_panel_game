@@ -1,14 +1,7 @@
-/* Tinkercad Circuits Style */
-:root {
-  --tk-header-bg: #2e353d;
-  --tk-header-border: #1f2429;
-  --tk-workplane-bg: #e6ebed;
-  --tk-dot-grid: #c7d1d6;
-  --tk-green: #00aa4f;
-  --tk-green-hover: #009344;
-  --tk-red: #ea2027;
-  --wire-default: #ef4444;
-}
+/* ==========================================================================
+   SolarWire • Streamlined Integrated Stylesheet
+   Focused, uncluttered UI with high-contrast guided terminals & live physics
+   ========================================================================== */
 
 * {
   box-sizing: border-box;
@@ -18,1427 +11,873 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: var(--tk-workplane-bg);
-  height: 100vh;
+  font-family: Arial, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #eff5ed;
+  color: #101b46;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
-/* ================= TINKERCAD HEADER ================= */
-.tk-header {
-  height: 52px;
-  background: var(--tk-header-bg);
-  border-bottom: 1px solid var(--tk-header-border);
+/* ================= HEADER & TOOLBAR ================= */
+.app-header {
+  background: #101b46;
+  color: white;
+  padding: 10px 20px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
-  color: #ffffff;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
   z-index: 100;
-  flex-shrink: 0;
 }
 
-.tk-left {
+.header-left {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.tk-logo {
+.logo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 10px;
 }
 
-.tk-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-
-.tk-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tk-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-}
-
-.tk-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
   color: #ffffff;
+  line-height: 1.1;
 }
 
-.tk-btn.active {
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.15);
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.tk-btn.text-btn {
-  font-size: 0.8rem;
-  font-weight: 500;
-  padding: 5px 10px;
-  border: 1px solid #475569;
-}
-
-.tk-btn.demo-btn {
-  background: rgba(14, 165, 233, 0.2);
-  border: 1px solid #0284c7;
-  color: #38bdf8;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.tk-btn.demo-btn:hover {
-  background: #0284c7;
-  color: #ffffff;
-}
-
-.tk-btn.fault-btn {
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid #ef4444;
-  color: #fca5a5;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.tk-btn.fault-btn:hover {
-  background: #ef4444;
-  color: #ffffff;
-}
-
-.tk-divider {
+.tool-divider {
   width: 1px;
   height: 22px;
-  background: #475569;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 0 4px;
 }
 
-/* Wire Color Picker (Exact Tinkercad layout) */
-.tk-color-picker {
+.btn {
+  border: 1px solid #d0d9da;
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  background: white;
+  color: #101b46;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn:hover:not(:disabled) {
+  background: #e8f2dd;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: #176b3a;
+  color: white;
+  border-color: #176b3a;
+}
+.btn.primary:hover:not(:disabled) {
+  background: #218548;
+}
+
+.color-btn.chosen {
+  outline: 3px solid #d5ae35;
+  background: #fbfbf4;
+}
+
+/* Header Right */
+.header-right {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  background: #1e242b;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.pill-btn {
+  background: white;
+  border: none;
+  border-radius: 4px;
   padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #475569;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #101b46;
+  cursor: pointer;
+}
+.pill-btn.active {
+  background: #facc15;
+  color: #713f12;
 }
 
-.tk-color-swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  background: var(--wire-default);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.tk-color-picker select {
-  background: transparent;
+.control-pill select {
+  background: white;
   border: none;
-  color: #ffffff;
-  font-size: 0.8rem;
-  outline: none;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #101b46;
   cursor: pointer;
 }
 
-.tk-color-picker select option {
-  background: #2e353d;
+/* ================= GUIDE BANNER ================= */
+.guide-banner {
+  background: #0d1538;
+  color: white;
+  padding: 10px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #1a2a6c;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+}
+
+.guide-banner.disabled {
+  display: none;
+}
+
+.guide-info strong {
+  font-size: 0.95rem;
+  color: #a3e635;
+  letter-spacing: 0.5px;
+}
+
+.guide-info div {
+  font-size: 0.9rem;
   color: #ffffff;
 }
 
-/* Header Right: Simulation & Sun & Battery */
-.tk-right {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-}
-
-.tk-batt-slider {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
+.guide-subtext {
+  font-size: 0.75rem;
   color: #cbd5e1;
 }
 
-.tk-batt-slider input[type="range"] {
-  width: 70px;
-  accent-color: #22c55e;
-  cursor: pointer;
-}
-
-.tk-sun-slider {
+.guide-progress-box {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.guide-progress-box span {
   font-size: 0.8rem;
-  color: #cbd5e1;
+  font-weight: bold;
+  color: #c9ee91;
 }
 
-.tk-sun-slider input[type="range"] {
-  width: 70px;
-  accent-color: #f59e0b;
-  cursor: pointer;
-}
-
-.tk-sim-btn {
-  background: var(--tk-green);
-  border: none;
-  color: #ffffff;
-  padding: 7px 16px;
+.guide-bar-bg {
+  width: 130px;
+  height: 8px;
+  background: #1e293b;
   border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #334155;
+}
+
+#guide-bar-fill {
+  height: 100%;
+  background: #22c55e;
+  transition: width 0.3s ease;
+}
+
+/* ================= STATUS STRIP ================= */
+.status-bar {
+  background: #def0cb;
+  padding: 8px 24px;
   font-size: 0.85rem;
   font-weight: 600;
+  color: #143d22;
+  border-bottom: 1px solid #c8e0b1;
+  min-height: 36px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: background 0.15s;
 }
 
-.tk-sim-btn:hover {
-  background: var(--tk-green-hover);
-}
-
-.tk-sim-btn.running {
-  background: var(--tk-red);
-}
-
-.tk-sim-btn .sim-icon {
-  font-size: 0.75rem;
-}
-
-/* ================= WORKPLANE ================= */
-.tk-workplane {
+/* ================= WORKBENCH ================= */
+.workbench-viewport {
   flex: 1;
+  overflow: auto;
   position: relative;
-  background-color: var(--tk-workplane-bg);
-  background-image: radial-gradient(var(--tk-dot-grid) 1.5px, transparent 1.5px);
-  background-size: 24px 24px;
-  overflow: hidden;
+  background: linear-gradient(120deg, #e7f4db, #fcf6cf);
 }
 
-/* SVG Wires Layer: Must NOT block mouse interaction on terminals! */
-.tk-wire-svg {
+.workbench {
+  position: relative;
+  width: 1250px;
+  min-height: 940px;
+}
+
+.wire-svg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
   z-index: 10;
-  pointer-events: none; /* Key fix: Root SVG lets all clicks pass straight to terminals! */
 }
 
-.tk-wire {
-  stroke-width: 5px;
-  stroke-linecap: round;
+.wire-path {
   fill: none;
-  filter: url(#shadow);
-  pointer-events: stroke; /* Only the wire strokes themselves capture clicks */
+  stroke-linecap: round;
+  stroke-linejoin: round;
   cursor: pointer;
-  transition: stroke-width 0.12s ease;
+  pointer-events: stroke;
 }
 
-.tk-wire:hover {
-  stroke-width: 8px !important;
+.wire-glow {
+  stroke-width: 10px;
+  stroke: #ffffff;
+  opacity: 0.7;
 }
 
-.tk-wire.selected {
-  stroke-width: 7px !important;
-  filter: drop-shadow(0 0 6px #0284c7) drop-shadow(0 0 10px #38bdf8);
+.wire-core {
+  stroke-width: 4px;
 }
 
-.tk-wire.short-circuit-wire {
-  stroke: #ff1e00 !important;
-  stroke-dasharray: 8, 4;
-  animation: wire-burn 0.25s linear infinite;
-  filter: drop-shadow(0 0 6px #ff1e00) drop-shadow(0 0 14px #ff7700) !important;
+.wire-core.earth {
+  stroke-dasharray: 8 8;
+  stroke: #facc15;
 }
 
-@keyframes wire-burn {
-  0% { stroke-dashoffset: 0; filter: drop-shadow(0 0 4px #ff1e00); }
-  50% { stroke-dashoffset: 12; filter: drop-shadow(0 0 16px #ffea00); }
-  100% { stroke-dashoffset: 24; filter: drop-shadow(0 0 4px #ff1e00); }
+.wire-hit {
+  stroke-width: 16px;
+  stroke: transparent;
+  pointer-events: stroke;
+}
+
+.wire-path.selected .wire-glow {
+  stroke: #f59e0b;
+  opacity: 1;
+}
+
+.wire-path.bad .wire-glow {
+  stroke: #ef4444;
+  animation: flash 1s infinite;
+}
+
+@keyframes flash {
+  50% { opacity: 0.3; }
 }
 
 .draft-wire {
-  stroke-width: 4px;
-  stroke-dasharray: 6, 6;
-  stroke-linecap: round;
+  stroke: #3b82f6;
+  stroke-width: 3.5px;
+  stroke-dasharray: 6 5;
   fill: none;
-  pointer-events: none !important;
-}
-
-.electron-particle {
   pointer-events: none;
 }
 
-/* ================= TINKERCAD COMPONENTS ================= */
-.tk-component {
+.wire-energy {
+  stroke-dasharray: 10 8;
+  animation: flow 1s linear infinite;
+}
+@keyframes flow {
+  to { stroke-dashoffset: -36px; }
+}
+
+/* ================= HARDWARE CARDS ================= */
+.card {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
   background: #ffffff;
-  padding: 8px 10px;
-  border: 1px solid #cbd5e1;
-  cursor: grab;
-  z-index: 15; /* Sits below active terminals */
-}
-
-.tk-component:active {
-  cursor: grabbing;
-}
-
-.cmp-body {
-  position: relative;
+  border-radius: 12px;
+  box-shadow: 0 5px 14px rgba(16, 27, 70, 0.12);
+  border: 1px solid #dbe3df;
   display: flex;
+  flex-direction: column;
+  z-index: 5;
+}
+
+.card-header {
+  background: #174e39;
+  color: white;
+  padding: 7px 12px;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
 }
 
-/* 1. Solar Panel */
-.solar-body {
-  width: 200px;
-  height: 140px;
-  background: #0f1e36;
-  border: 5px solid #94a3b8;
-  border-radius: 4px;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
-  position: relative;
-  overflow: hidden;
+.card-title {
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
 }
 
-.solar-grid-pattern {
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(#3b82f6 1px, transparent 1px),
-    linear-gradient(90deg, #3b82f6 1px, transparent 1px);
-  background-size: 25px 25px;
-  opacity: 0.75;
-}
-
-.solar-badge {
-  position: absolute;
-  bottom: 6px;
-  background: rgba(15, 23, 42, 0.85);
-  color: #f8fafc;
+.card-badge {
   font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 3px;
-  letter-spacing: 0.5px;
-}
-
-/* 2. Solar Charge Controller */
-.cc-body {
-  width: 230px;
-  height: 140px;
-  background: #0284c7;
-  border: 4px solid #0369a1;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 8px;
-}
-
-.cc-lcd {
-  width: 155px;
-  height: 52px;
-  background: #082f49;
-  border: 2px solid #0f172a;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
   border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 3px 8px;
-  gap: 2px;
-}
-
-.lcd-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.lcd-sub {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.lcd-text {
-  font-family: 'Courier New', monospace;
-  font-size: 0.95rem;
   font-weight: bold;
-  color: #38bdf8;
-  letter-spacing: 0.5px;
+  color: #d9f8a6;
 }
 
-.lcd-pct {
-  font-family: 'Courier New', monospace;
-  font-size: 0.95rem;
-  font-weight: bold;
-  color: #4ade80;
-}
-
-.lcd-mode {
-  font-family: 'Courier New', monospace;
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 0.5px;
-}
-
-.lcd-led {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #334155;
-  border: 1px solid #0f172a;
-}
-
-.lcd-led.on {
-  background: #22c55e;
-  box-shadow: 0 0 8px #22c55e;
-}
-
-.lcd-led.blink-red {
-  background: #ef4444;
-  box-shadow: 0 0 8px #ef4444;
-  animation: led-blink 0.4s infinite alternate;
-}
-
-@keyframes led-blink {
-  from { opacity: 0.2; }
-  to { opacity: 1; }
-}
-
-.cc-icons {
+/* Terminals */
+.terminals-row {
   display: flex;
   justify-content: space-around;
-  width: 100%;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #ffffff;
+  padding: 4px 8px;
+  background: #edf3ee;
+}
+.terminals-row.top {
+  border-bottom: 1px solid #d4dfd8;
+}
+.terminals-row.bottom {
+  border-top: 1px solid #d4dfd8;
+  border-bottom-left-radius: 11px;
+  border-bottom-right-radius: 11px;
 }
 
-/* 3. 12V DC Bulb */
-.bulb-body {
-  width: 160px;
-  height: 140px;
+.terminal {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-}
-
-.bulb-glass {
-  width: 65px;
-  height: 65px;
-  border-radius: 50%;
-  background: #f1f5f9;
-  border: 2px solid #cbd5e1;
+  cursor: crosshair;
+  padding: 2px 4px;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.bulb-filament {
-  width: 18px;
-  height: 18px;
-  border-top: 3px solid #94a3b8;
-  border-radius: 50%;
-}
-
-.bulb-base {
-  width: 30px;
-  height: 16px;
-  background: #d97706;
-  border-radius: 2px;
-  margin-top: -2px;
-}
-
-.bulb-glass.lit {
-  background: radial-gradient(circle, #fef08a 0%, #facc15 80%);
-  border-color: #eab308;
-  box-shadow: 0 0 35px #facc15;
-}
-
-.bulb-glass.lit .bulb-filament {
-  border-color: #ffffff;
-  box-shadow: 0 0 8px #ffffff;
-}
-
-/* 4. Battery */
-.batt-body {
-  width: 215px;
-  height: 145px;
-  background: #1e293b;
   border-radius: 6px;
+}
+
+.terminal:hover {
+  background: #fef08a;
+}
+
+.screw {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #334155;
+  background: #94a3b8;
+  position: relative;
+}
+.screw.red { background: #cc3434; border-color: #8b1d1d; }
+.screw.black { background: #111111; border-color: #000000; }
+.screw.earth { background: linear-gradient(135deg, #16a34a 50%, #facc15 50%); border-color: #15803d; }
+
+.term-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  margin-top: 2px;
+  color: #101b46;
+}
+
+/* Terminal Guide Rings */
+.terminal.guide-source::before {
+  content: '';
+  position: absolute;
+  top: -5px; left: -5px; right: -5px; bottom: -5px;
+  border: 3px solid #1687d8;
+  border-radius: 8px;
+  animation: pulse-ring 1s infinite;
+  pointer-events: none;
+}
+.terminal.guide-dest::before {
+  content: '';
+  position: absolute;
+  top: -5px; left: -5px; right: -5px; bottom: -5px;
+  border: 3px solid #e9ad19;
+  border-radius: 8px;
+  animation: pulse-ring 1s infinite;
+  pointer-events: none;
+}
+.terminal.missing::before {
+  content: '';
+  position: absolute;
+  top: -5px; left: -5px; right: -5px; bottom: -5px;
+  border: 3px solid #facc15;
+  border-radius: 8px;
+  animation: pulse-ring 0.8s infinite;
+  pointer-events: none;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 1; }
+}
+
+/* 1. SOLAR PANEL */
+.pv-body {
+  flex: 1;
+  background: #183450;
+  margin: 6px;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #576d85;
+}
+.pv-cells {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: linear-gradient(to right, #455d7a 1px, transparent 1px), linear-gradient(to bottom, #455d7a 1px, transparent 1px);
+  background-size: 28px 30px;
+}
+.pv-info-badge {
+  position: absolute;
+  bottom: 6px; left: 6px; right: 6px;
+  background: rgba(16, 27, 70, 0.85);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+#pv-watts-text { color: #facc15; }
+
+/* 2. MCB BANK */
+.mcb-bank {
+  background: #dbe3df;
+}
+.mcb-header {
+  background: #101b46;
+}
+.mcb-bank-content {
+  display: flex;
+  padding: 8px;
+  gap: 10px;
+  flex: 1;
+}
+.mcb-module {
+  flex: 1;
+  background: #f5f8f6;
+  border-radius: 8px;
+  border: 1px solid #b7c4bd;
   display: flex;
   flex-direction: column;
-  border: 3px solid #0f172a;
-  overflow: hidden;
 }
-
-.batt-top-bar {
-  height: 24px;
-  background: #334155;
-  border-bottom: 2px solid #0f172a;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 15px;
+.mcb-sep {
+  width: 2px;
+  background: #b5c3bc;
 }
-
-.batt-post-post {
-  width: 16px;
-  height: 12px;
-  border-radius: 2px;
-}
-.pos-post { background: #ef4444; }
-.neg-post { background: #0f172a; border: 1px solid #475569; }
-
-.batt-handle {
-  width: 50px;
-  height: 6px;
-  background: #64748b;
-  border-radius: 2px;
-}
-
-.batt-front {
+.mcb-face {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 12px;
-  color: #ffffff;
+  padding: 8px 4px;
 }
+.mcb-name { font-size: 0.75rem; font-weight: 800; }
+.mcb-spec { font-size: 0.68rem; font-weight: 700; color: #16a34a; }
+.mcb-poles { font-size: 0.65rem; color: #64748b; font-weight: 700; }
 
-.batt-brand {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.batt-brand-name {
-  font-size: 0.85rem;
+.mcb-lever {
+  width: 72px;
+  height: 32px;
+  background: #64756b;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
   font-weight: 800;
-  color: #f1f5f9;
-  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+.mcb-lever.on {
+  background: #258f42;
+  box-shadow: 0 0 8px rgba(37, 143, 66, 0.5);
 }
 
-.batt-brand-sub {
-  font-size: 0.55rem;
-  font-weight: 600;
-  color: #94a3b8;
-  letter-spacing: 0.5px;
+/* 3. INVERTER */
+.inverter-card {
+  background: #fbfbfb;
 }
-
-/* Battery Gauge */
-.batt-gauge {
-  width: 100%;
+.inv-header {
+  background: #8a1619;
+}
+.inv-body {
+  flex: 1;
+  background: linear-gradient(135deg, #e95448, #9b1e22);
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin: 1px 0;
+  justify-content: center;
 }
-
-.batt-meter-frame {
-  width: 100%;
-  height: 13px;
+.inv-controls {
+  background: rgba(0,0,0,0.4);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.inv-screen {
   background: #0f172a;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90px;
+}
+.sine-svg { width: 75px; height: 22px; }
+.inv-screen-text { font-size: 0.6rem; color: #4ade80; font-family: monospace; }
+
+.inv-switch-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.rocker-btn {
+  width: 34px;
+  height: 42px;
+  background: #737b7e;
+  border: 2px solid #334155;
+  border-radius: 4px;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+.rocker-btn.on {
+  background: #c83e30;
+  box-shadow: 0 0 10px rgba(200, 62, 48, 0.8);
+}
+.pilot-led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #475569;
+}
+.pilot-led.lit {
+  background: #5ef17b;
+  box-shadow: 0 0 8px #5ef17b;
+}
+
+/* 4. CHARGE CONTROLLER */
+.cc-face {
+  flex: 1;
+  background: #fbfbf6;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cc-lcd {
+  background: #1e2931;
+  color: white;
+  border-radius: 6px;
+  padding: 8px 12px;
+  width: 100%;
+}
+.cc-lcd-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 4px;
+}
+#cc-voltage { color: #a8edb4; font-weight: bold; }
+.cc-lcd-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+}
+#cc-status-text { font-size: 1.1rem; font-weight: 800; color: #38bdf8; }
+.cc-indicators { display: flex; gap: 4px; }
+.indicator {
+  font-size: 0.6rem;
+  font-weight: 800;
+  background: #334155;
+  padding: 2px 4px;
   border-radius: 3px;
-  border: 1px solid #334155;
-  padding: 1.5px;
-  position: relative;
-  overflow: hidden;
+  color: #94a3b8;
+}
+.indicator.on {
+  background: #16a34a;
+  color: white;
+  box-shadow: 0 0 6px #16a34a;
 }
 
-.batt-meter-bar {
-  height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #22c55e, #4ade80);
-  transition: width 0.3s ease, background 0.3s ease;
+/* 5. BATTERY */
+.bat-body {
+  flex: 1;
+  background: #ffffff;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-
-.batt-meter-bar.med {
-  background: linear-gradient(90deg, #eab308, #facc15);
+.bat-display {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-
-.batt-meter-bar.low {
-  background: linear-gradient(90deg, #ef4444, #f87171);
-}
-
-.batt-meter-bar.empty {
-  background: #ef4444;
-  animation: batt-empty-pulse 0.6s infinite alternate;
-}
-
-@keyframes batt-empty-pulse {
-  from { opacity: 0.2; }
-  to { opacity: 1; }
-}
-
-.batt-val-row {
+.bat-top-line {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  width: 100%;
 }
-
-.batt-pct {
-  font-size: 1.05rem;
+.bat-pct { font-size: 1.5rem; font-weight: 800; color: #176b3a; }
+.bat-state {
+  font-size: 0.72rem;
   font-weight: 800;
-  color: #4ade80;
-  font-family: 'Courier New', monospace;
+  background: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #334155;
 }
-
-.batt-volts {
+.bat-bar-track {
+  width: 100%;
+  height: 10px;
+  background: #dce6da;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.bat-bar-fill {
+  height: 100%;
+  background: #328a47;
+  transition: width 0.3s ease;
+}
+.bat-metrics {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.bat-eta {
   font-size: 0.8rem;
-  font-weight: 700;
-  color: #cbd5e1;
-  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #174e39;
 }
 
-/* Battery status badge */
-.batt-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  background: #334155;
-  color: #e2e8f0;
-  border: 1px solid #475569;
-  letter-spacing: 0.3px;
-  max-width: 100%;
-  white-space: nowrap;
-}
-
-.batt-badge.charging {
-  background: rgba(34, 197, 94, 0.2);
-  border-color: #22c55e;
-  color: #4ade80;
-}
-
-.batt-badge.discharging {
-  background: rgba(234, 179, 8, 0.2);
-  border-color: #eab308;
-  color: #fde047;
-}
-
-.batt-badge.shorted {
-  background: rgba(239, 68, 68, 0.35);
-  border-color: #ef4444;
-  color: #fca5a5;
-  animation: batt-short-blink 0.3s infinite alternate;
-}
-
-@keyframes batt-short-blink {
-  from { box-shadow: 0 0 4px #ef4444; transform: scale(1); }
-  to { box-shadow: 0 0 12px #ef4444; transform: scale(1.04); }
-}
-
-.batt-badge.depleted {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
-  color: #fca5a5;
-}
-
-/* 5. Inverter */
-.inv-body {
-  width: 230px;
-  height: 130px;
-  background: #475569;
-  border: 3px solid #334155;
-  border-radius: 6px;
+/* 6. SOCKET OUTLET */
+.socket-face {
+  flex: 1;
+  background: #f8f8f4;
+  padding: 12px;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 10px;
 }
-
-.inv-fan-grill {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  background: #1e293b;
-  border: 2px solid #334155;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.fan-blades {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: conic-gradient(#64748b 0deg 45deg, transparent 45deg 90deg, #64748b 90deg 135deg, transparent 135deg 180deg, #64748b 180deg 225deg, transparent 225deg 270deg, #64748b 270deg 315deg, transparent 315deg 360deg);
-}
-
-.inv-fan-grill.spin .fan-blades {
-  animation: fan-spin 0.2s linear infinite;
-}
-
-@keyframes fan-spin {
-  to { transform: rotate(360deg); }
-}
-
-.inv-switch {
-  width: 24px;
-  height: 36px;
-  background: #0f172a;
-  border-radius: 3px;
-  padding: 2px;
-}
-
-.switch-toggle {
-  width: 100%;
-  height: 50%;
-  background: #ef4444;
-  border-radius: 2px;
-}
-
-.inv-labels {
+.socket-plate {
+  background: #e2e8f0;
+  padding: 10px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #cbd5e1;
+}
+.earth-slot { width: 8px; height: 18px; background: #161b20; border-radius: 1px; }
+.pin-slots-row { display: flex; gap: 14px; }
+.power-slot { width: 14px; height: 7px; background: #161b20; border-radius: 1px; }
+
+.socket-switch-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 4px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #cbd5e1;
 }
-
-.ac-tag {
-  color: #38bdf8;
-}
-
-/* 6. AC 230V Fan Load */
-.ac-motor-body {
-  width: 160px;
-  height: 130px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.ac-fan-housing {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: 3px solid #334155;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ac-blades {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: conic-gradient(#0284c7 0deg 60deg, transparent 60deg 120deg, #0284c7 120deg 180deg, transparent 180deg 240deg, #0284c7 240deg 300deg, transparent 300deg 360deg);
-}
-
-.ac-fan-housing.spinning .ac-blades {
-  animation: fan-spin 0.15s linear infinite;
-}
-
-.comp-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #475569;
-  margin-top: 4px;
-}
-
-/* ================= TERMINALS (BIG CLICKABLE HITBOXES) ================= */
-.cmp-terminals {
-  display: flex;
-  gap: 1.5rem;
-  margin-top: 8px;
-}
-
-.cc-terminals {
-  gap: 0.75rem;
-}
-
-.inv-terminals {
-  gap: 0.85rem;
-}
-
-.tk-terminal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  position: relative;
-  min-width: 30px;
-  padding: 4px 2px;
+.socket-switch {
+  width: 32px;
+  height: 44px;
+  background: #a6aea7;
+  border: 2px solid #8d9992;
   border-radius: 4px;
-  transition: background 0.15s;
-  z-index: 20; /* High z-index so clicks always land on terminals */
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+.socket-switch.on {
+  background: #d74635;
+  box-shadow: 0 0 10px rgba(215, 70, 53, 0.7);
+}
+.socket-status { font-size: 0.75rem; font-weight: 800; color: #176b3a; }
+
+/* 7. LOAD RACK & PLUG */
+.load-header {
+  background: #176b3a;
+}
+.load-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lamp-count-val { font-size: 0.8rem; font-weight: 800; color: white; min-width: 90px; text-align: center; }
+.btn-qty {
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #176b3a;
+  cursor: pointer;
 }
 
-.tk-terminal:hover {
-  background: rgba(2, 132, 199, 0.12);
+.load-body {
+  flex: 1;
+  display: flex;
+  padding: 10px 16px;
+  gap: 16px;
+  background: white;
+  border-bottom-left-radius: 11px;
+  border-bottom-right-radius: 11px;
 }
 
-.tk-terminal:hover .terminal-screw {
-  transform: scale(1.35);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+.lamps-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 8px;
 }
 
-.terminal-screw {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #d4d4d8;
-  border: 2px solid #71717a;
+.lamp-tube {
+  height: 42px;
+  background: #d6dfdf;
+  border-radius: 6px;
   position: relative;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  pointer-events: none; /* Mouse passes to .tk-terminal */
+  overflow: hidden;
+  border: 1px solid #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+.lamp-tube.hidden { display: none; }
 
-.terminal-screw::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 20%;
-  width: 60%;
-  height: 2px;
-  background: #52525b;
-  transform: translateY(-50%) rotate(45deg);
-}
-
-.screw-pos {
-  background: #fca5a5;
-  border-color: #ef4444;
-}
-
-.screw-neg {
-  background: #94a3b8;
-  border-color: #1e293b;
-}
-
-.screw-ac-live {
-  background: #fde68a;
-  border-color: #f59e0b;
-}
-
-.screw-ac-neu {
-  background: #bae6fd;
-  border-color: #0284c7;
-}
-
-.terminal-text {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #334155;
-  margin-top: 2px;
-  pointer-events: none;
-}
-
-/* Connecting state feedback */
-.tk-terminal.active-src {
-  background: rgba(2, 132, 199, 0.25);
-  outline: 2px dashed #0284c7;
-}
-
-.tk-terminal.active-src .terminal-screw {
-  transform: scale(1.4);
-  box-shadow: 0 0 12px #0284c7;
-}
-
-.tk-terminal.has-wire .terminal-screw::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ffffff;
+.tube-text {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #475569;
   z-index: 2;
 }
 
-/* SVG Dynamic Sparks & Smoke Elements */
-.spark-zap-line {
-  stroke: #ffea00;
-  stroke-width: 3;
-  stroke-linecap: round;
-  fill: none;
-  filter: url(#spark-glow);
-  pointer-events: none;
-}
-
-.spark-star {
-  fill: #ffffff;
-  filter: drop-shadow(0 0 6px #ffea00);
-  pointer-events: none;
-}
-
-.smoke-cloud {
-  fill: rgba(148, 163, 184, 0.45);
-  pointer-events: none;
-}
-
-/* Spark bubble / Fault Card */
-.sim-spark-bubble {
+.tube-glow {
   position: absolute;
-  top: 48%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #18181b;
-  border: 2px solid #ef4444;
-  color: #ffffff;
-  padding: 16px 20px;
-  border-radius: 8px;
-  z-index: 200;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 24px rgba(239, 68, 68, 0.45);
-  max-width: 440px;
-  text-align: center;
-  animation: spark-card-shake 0.35s ease-in-out;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #f7e365;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-@keyframes spark-card-shake {
-  0%, 100% { transform: translate(-50%, -50%); }
-  20%, 60% { transform: translate(-52%, -50%); }
-  40%, 80% { transform: translate(-48%, -50%); }
+.lamp-tube.lit {
+  background: #fffef1;
+  box-shadow: 0 0 20px rgba(247, 227, 101, 0.8);
 }
+.lamp-tube.lit .tube-glow { opacity: 0.85; }
+.lamp-tube.lit .tube-text { color: #854d0e; }
 
-.spark-bubble-header {
+/* Plug Assembly */
+.plug-container {
+  width: 220px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  position: relative;
 }
 
-.spark-hazard-icon {
-  font-size: 1.4rem;
-}
-
-.spark-bubble-title {
-  color: #f87171;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
-}
-
-.spark-bubble-desc {
-  font-size: 0.85rem;
-  color: #cbd5e1;
-  line-height: 1.4;
-  margin-bottom: 14px;
-}
-
-.spark-bubble-actions {
-  display: flex;
-  justify-content: center;
-}
-
-.spark-action-btn {
-  background: #ef4444;
-  color: #ffffff;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 5px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.spark-action-btn:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-}
-
-/* ================= TINKERCAD FOOTER ================= */
-.tk-footer {
-  height: 34px;
-  background: #ffffff;
-  border-top: 1px solid #cbd5e1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1rem;
-  font-size: 0.8rem;
-  color: #475569;
-  flex-shrink: 0;
-}
-
-/* ================= STEP-BY-STEP COMPONENT ATTACHING GUIDE ================= */
-
-/* Toolbar Guide Toggle Button */
-.tk-btn.guide-toggle-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid #475569;
-  color: #cbd5e1;
-  font-size: 0.82rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tk-btn.guide-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border-color: #64748b;
-}
-
-.tk-btn.guide-toggle-btn.active {
-  background: rgba(16, 185, 129, 0.2);
-  border-color: #10b981;
-  color: #ffffff;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
-}
-
-.guide-status-badge {
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 10px;
-  letter-spacing: 0.5px;
-  transition: all 0.2s;
-}
-
-.guide-status-badge.off {
-  background: #475569;
-  color: #94a3b8;
-}
-
-.guide-status-badge.on {
-  background: #10b981;
-  color: #ffffff;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-}
-
-/* Floating Guide Overlay Card */
-.guide-floating-panel {
+.cord-svg {
   position: absolute;
-  top: 18px;
-  right: 22px;
-  width: 350px;
-  max-width: calc(100vw - 36px);
-  background: rgba(18, 24, 32, 0.94);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 3px 8px rgba(0, 0, 0, 0.35);
-  z-index: 85;
-  color: #f1f5f9;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  animation: guide-panel-appear 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes guide-panel-appear {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.guide-floating-panel.minimized .guide-body {
-  display: none;
-}
-
-.guide-floating-panel.minimized {
-  width: auto;
-  min-width: 260px;
-}
-
-/* Guide Header */
-.guide-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 12px;
-  background: rgba(10, 15, 24, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 9px 9px 0 0;
-  cursor: grab;
-  user-select: none;
-}
-
-.guide-header:active {
-  cursor: grabbing;
-}
-
-.guide-header-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.guide-icon {
-  font-size: 1rem;
-}
-
-.guide-step-tag {
-  background: #0284c7;
-  color: #ffffff;
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 10px;
-  letter-spacing: 0.5px;
-}
-
-.guide-drag-handle {
-  color: #475569;
-  font-size: 0.9rem;
-  letter-spacing: -2px;
-  cursor: grab;
-}
-
-.guide-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.guide-hdr-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
-  font-size: 0.74rem;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.guide-hdr-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-}
-
-.guide-hdr-btn.close-btn {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.35);
-  color: #fca5a5;
-}
-
-.guide-hdr-btn.close-btn:hover {
-  background: #ef4444;
-  color: #ffffff;
-}
-
-/* Guide Body */
-.guide-body {
-  padding: 12px 14px 14px 14px;
-}
-
-.guide-progress-bar-container {
-  height: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 11px;
-}
-
-.guide-progress-bar {
+  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #0284c7, #10b981);
-  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
 
-.guide-step-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #38bdf8;
-  margin-bottom: 6px;
-  line-height: 1.3;
-}
-
-.guide-step-desc {
-  font-size: 0.81rem;
-  color: #94a3b8;
-  line-height: 1.45;
-  margin-bottom: 12px;
-}
-
-.guide-step-desc strong {
-  color: #f8fafc;
-}
-
-/* Dynamic Tasks List */
-.guide-tasks {
+.plug-unit {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 11px;
-}
-
-.guide-task-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 6px;
-  font-size: 0.79rem;
-  transition: all 0.2s ease;
-}
-
-.guide-task-item.done {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #a7f3d0;
-}
-
-.guide-task-check {
-  font-size: 0.9rem;
-  font-weight: 800;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.08);
-  color: #64748b;
-  transition: all 0.2s;
-}
-
-.guide-task-item.done .guide-task-check {
-  background: #10b981;
-  color: #ffffff;
-}
-
-.guide-task-wire-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.guide-task-text {
-  flex-grow: 1;
-  color: #e2e8f0;
-}
-
-.guide-task-item.done .guide-task-text {
-  color: #cbd5e1;
-  text-decoration: line-through;
-  opacity: 0.85;
-}
-
-/* Tip Box */
-.guide-step-tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  padding: 7px 9px;
-  border-radius: 6px;
-  margin-bottom: 12px;
-  font-size: 0.76rem;
-  color: #fde68a;
-  line-height: 1.35;
-}
-
-.tip-icon {
-  font-size: 0.95rem;
-  flex-shrink: 0;
-}
-
-/* Footer / Navigation */
-.guide-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.guide-nav-btns {
-  display: flex;
   align-items: center;
   gap: 6px;
+  z-index: 2;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.guide-btn-nav {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #e2e8f0;
-  padding: 5px 11px;
-  border-radius: 4px;
-  font-size: 0.76rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.guide-btn-nav:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-}
-
-.guide-btn-nav:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.guide-btn-autowire {
-  background: linear-gradient(135deg, #0284c7, #2563eb);
-  border: none;
-  color: #ffffff;
-  padding: 5px 12px;
-  border-radius: 4px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: inline-flex;
+.plug-pins {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 4px;
 }
+.plug-pins.hidden { visibility: hidden; }
 
-.guide-btn-autowire:hover {
-  background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
-  transform: translateY(-1px);
+.pin { background: linear-gradient(to right, #a9b0b7, #fafafa, #b6bec5); border-radius: 1px; }
+.p-earth { width: 7px; height: 16px; }
+.pins-pair { display: flex; gap: 14px; }
+.p-power { width: 14px; height: 6px; }
+
+.plug-case {
+  width: 60px;
+  height: 48px;
+  background: #283139;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
 }
 
-/* Completed Step Celebration Banner */
-.guide-step-complete-banner {
-  background: rgba(16, 185, 129, 0.18);
-  border: 1px solid #10b981;
-  color: #6ee7b7;
-  padding: 8px 10px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 10px;
-  animation: banner-pop 0.3s ease;
+.plug-btn {
+  background: #176b3a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.plug-btn.plugged {
+  background: #b56a21;
 }
 
-@keyframes banner-pop {
-  0% { transform: scale(0.9); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+/* ================= DIALOG ================= */
+dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  margin: auto;
+  max-width: 440px;
 }
-
-/* ================= TARGET TERMINAL HIGHLIGHTS WHEN GUIDE IS ON ================= */
-.tk-terminal.guide-target {
-  z-index: 25 !important;
-  animation: guide-terminal-pulse 1.3s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
+dialog::backdrop {
+  background: rgba(16, 27, 70, 0.6);
 }
-
-@keyframes guide-terminal-pulse {
-  0% {
-    box-shadow: 0 0 0 2px #38bdf8, 0 0 8px rgba(56, 189, 248, 0.6);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.85), 0 0 18px rgba(56, 189, 248, 0.95);
-    transform: scale(1.15);
-  }
-  100% {
-    box-shadow: 0 0 0 2px #38bdf8, 0 0 8px rgba(56, 189, 248, 0.6);
-    transform: scale(1);
-  }
-}
-
-.tk-terminal.guide-target-pos {
-  animation: guide-terminal-pulse-pos 1.3s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
-}
-
-@keyframes guide-terminal-pulse-pos {
-  0% {
-    box-shadow: 0 0 0 2px #ef4444, 0 0 8px rgba(239, 68, 68, 0.6);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.85), 0 0 18px rgba(239, 68, 68, 0.95);
-    transform: scale(1.15);
-  }
-  100% {
-    box-shadow: 0 0 0 2px #ef4444, 0 0 8px rgba(239, 68, 68, 0.6);
-    transform: scale(1);
-  }
-}
-
-.tk-terminal.guide-target-neg {
-  animation: guide-terminal-pulse-neg 1.3s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
-}
-
-@keyframes guide-terminal-pulse-neg {
-  0% {
-    box-shadow: 0 0 0 2px #64748b, 0 0 8px rgba(100, 116, 139, 0.6);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(148, 163, 184, 0.85), 0 0 18px rgba(148, 163, 184, 0.95);
-    transform: scale(1.15);
-  }
-  100% {
-    box-shadow: 0 0 0 2px #64748b, 0 0 8px rgba(100, 116, 139, 0.6);
-    transform: scale(1);
-  }
-}
-
-/* SVG Animated Dashed Hint Wire */
-.guide-hint-wire {
-  fill: none;
-  stroke-width: 3.2;
-  stroke-linecap: round;
-  stroke-dasharray: 8 6;
-  animation: guide-dash-flow 1.1s linear infinite;
-  opacity: 0.88;
-  pointer-events: none;
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
-}
-
-@keyframes guide-dash-flow {
-  to {
-    stroke-dashoffset: -28;
-  }
-}
+dialog h2 { margin-bottom: 8px; font-size: 1.15rem; }
+dialog p { margin-bottom: 16px; font-size: 0.85rem; color: #475569; }
+.dialog-btns { display: flex; justify-content: flex-end; gap: 8px; }
